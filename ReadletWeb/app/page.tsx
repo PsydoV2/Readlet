@@ -1,4 +1,3 @@
-import Image from "next/image";
 import {
   ArrowUpRightIcon,
   CodeIcon,
@@ -10,8 +9,9 @@ import {
   PlusIcon,
   ShieldIcon,
 } from "./icons";
-
-const REPO_URL = "https://github.com/PsydoV2/Readlet";
+import { SiteHeader } from "./components/SiteHeader";
+import { SiteFooter } from "./components/SiteFooter";
+import { REPO_URL } from "./site-config";
 
 const features = [
   {
@@ -76,32 +76,7 @@ const shelf = [
 export default function Home() {
   return (
     <div className="flex flex-col flex-1">
-      <header className="sticky top-0 z-10 border-b border-[var(--border-muted)] bg-[var(--canvas)]/85 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-[1040px] items-center justify-between px-6 py-4">
-          <a href="#top" className="flex items-center gap-2">
-            <Image
-              src="/logo.png"
-              alt=""
-              width={22}
-              height={22}
-              className="brand-mark"
-              priority
-            />
-            <span className="text-[17px] font-bold tracking-tight text-[var(--text)]">
-              Readlet<span className="text-[var(--primary)]">.</span>
-            </span>
-          </a>
-          <a
-            href={REPO_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--surface-hover)] text-[var(--text)] transition-colors hover:text-[var(--primary)]"
-            aria-label="Quellcode auf GitHub ansehen"
-          >
-            <CodeIcon className="h-4 w-4" />
-          </a>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main id="top" className="flex-1">
         {/* Hero */}
@@ -239,29 +214,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-[var(--border-muted)]">
-        <div className="mx-auto flex w-full max-w-[1040px] flex-col gap-4 px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <span className="text-[15px] font-bold tracking-tight text-[var(--text)]">
-              Readlet<span className="text-[var(--primary)]">.</span>
-            </span>
-            <p className="mt-1 text-[13px] text-[var(--text-subtle)]">
-              Kein Account. Keine Cloud. Keine Werbung.
-            </p>
-          </div>
-          <div className="flex items-center gap-5 text-[13px] text-[var(--text-muted)]">
-            <a
-              href={REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-[var(--primary)]"
-            >
-              Quellcode auf GitHub
-            </a>
-            <span>© 2026 Readlet</span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
