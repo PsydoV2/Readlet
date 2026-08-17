@@ -1,0 +1,38 @@
+export default {
+  light: {
+    bgDark: "#f1f5f9",
+    bg: "#f8fafc",
+    bgLight: "#ffffff",
+    text: "#0f172a",
+    textMuted: "#64748b",
+    highlight: "#ffffff",
+    border: "#e2e8f0",
+    borderMuted: "#cbd5e1",
+    primary: "#7c3aed",
+    secondary: "#f59e0b",
+    danger: "#f43f5e",
+    warning: "#f59e0b",
+    success: "#10b981",
+    info: "#0ea5e9",
+  },
+
+  dark: {
+    bgDark: "#09090b",
+    bg: "#18181b",
+    bgLight: "#27272a",
+    text: "#fafafa",
+    textMuted: "#a1a1aa",
+    highlight: "#3f3f46",
+    border: "#3f3f46",
+    borderMuted: "#52525b",
+    primary: "#a78bfa",
+    secondary: "#fbbf24",
+    danger: "#fb7185",
+    warning: "#fbbf24",
+    success: "#34d399",
+    info: "#38bdf8",
+  },
+
+  borderRadius: 12,
+  gap: 12,
+};

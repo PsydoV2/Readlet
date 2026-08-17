@@ -1,0 +1,30 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "moduleResolution": "Bundler", // recommended for RN/Expo (TS >=5.0)
+    "paths": {
+      "@/*": ["./*"] // "@/..." points to the project root
+      // Prefer a "src/"-only layout instead?
+      // "@/*": ["./src/*"]
+    },
+    "types": [
+      "jest",
+      "react",
+      "react-native",
+      "expo-router" // Router type helpers
+    ],
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "app",
+    "src",
+    "babel.config.js"
+  ]
+}
