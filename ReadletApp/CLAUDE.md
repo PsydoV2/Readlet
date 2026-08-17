@@ -22,7 +22,7 @@ Users import their own ebooks (EPUB/MOBI/PDF) via the native file picker or shar
 3. **Reader** (`app/(auth)/reader/[id].tsx`) — real EPUB/PDF rendering via a `WebView`, not a native library — see the Reader section below for why and what that trades off
 4. **Book detail** (`app/(auth)/book/[id].tsx`) — cover, metadata, reading stats, delete option
 
-All four are **functional**, not a mock-data prototype: importing, storage, and reading are real — see the Library data & import and Reader sections below. There's also a **Settings** modal (`app/(auth)/settings.tsx`, opened from the gear icon in the Library header) covering theme, language, app lock, and legal links — see the Theming, Internationalization, and App lock sections below.
+All four are **functional**, not a mock-data prototype: importing, storage, and reading are real — see the Library data & import and Reader sections below. There's also a **Settings** modal (`app/(auth)/settings.tsx`, opened from the gear icon in the Library header) covering theme, language, app lock, updates, and legal links — see the Theming, Internationalization, App lock, and OTA updates sections below.
 
 ### Sibling `ReadletWeb/` project
 
@@ -39,6 +39,7 @@ Already added and in active use — not just planned:
 - `react-native-webview` — renders EPUB/MOBI chapters and PDFs (see Reader section for why, over `react-native-epub-view`/`react-native-pdf`)
 - `i18next` + `react-i18next` + `expo-localization` — UI language (see Internationalization section)
 - `expo-secure-store` + `expo-local-authentication` — the app-lock feature (see App lock section)
+- `expo-updates` — OTA JS-bundle updates for EAS-built binaries (see OTA updates section); inert in Expo Go/dev builds, so it doesn't affect the day-to-day `npx expo start` workflow
 
 ### No-auth stance
 
@@ -113,6 +114,14 @@ npx tsc --noEmit       # typecheck (no dedicated script)
 - `app/(auth)/settings-pin.tsx` is the one PIN-entry flow for all three cases (`enable`/`change`/`disable`, via `?mode=`), gated in `disable`/`change` behind re-entering the _current_ PIN first — so picking up an unlocked phone isn't enough to turn the lock off. `src/components/PinKeypad.tsx` (`PinDots` + `PinKeypad`) is shared between it and `app/lock.tsx`.
 - `app.json` has two plugin entries added for this: `"expo-secure-store"` (auto-added by `npx expo install`) and `["expo-local-authentication", { "faceIDPermission": "..." }]` (the iOS `NSFaceIDUsageDescription`; without it Face ID silently falls back to device passcode). Both are Expo SDK modules available in Expo Go — no dev-client rebuild needed for this feature.
 - Settings → "Jetzt sperren" calls `lockNow()` directly, for testing the lock screen without actually backgrounding the app — this is enough to trigger `(auth)/_layout.tsx`'s redirect from wherever the user currently is.
+
+### OTA updates (`expo-updates`, `src/services/otaUpdates.ts`)
+
+- Unlike the Reader's Expo-Go-only WebView approach (see Reader section), OTA updates are a production-distribution concern, not a dev-workflow one — they don't fight the "stay on Expo Go" tradeoff at all: `expo-updates` is a no-op in Expo Go and in dev builds (`Updates.isEnabled` is `false` there), and only ever activates in an EAS-built binary installed on a device. `npx expo start`/Expo Go keep working exactly as before.
+- Config lives entirely in `app.json` (`"runtimeVersion": { "policy": "fingerprint" }` — the modern managed-workflow default, safer than `"appVersion"` since it's derived from the actual native fingerprint (config plugins, SDK version, etc.) instead of a hand-bumped version string that's easy to forget to bump; `"updates": { "url": "https://u.expo.dev/<projectId>" }`, and the `"expo-updates"` plugin entry) and `eas.json` (a `"channel"` per build profile — `development`/`preview`/`production` — so `eas update --channel <name>` reaches the matching installed build). No `ios`/`android` native folders exist in this repo (pure managed/CNG workflow), which is exactly the case `"fingerprint"` is designed for.
+- With just that config, updates are **fully automatic and need no app code**: `expo-updates` checks on every cold start, downloads a newer update silently in the background if one exists, and applies it on the *next* cold start — never interrupting a session mid-use.
+- `src/services/otaUpdates.ts`'s `checkAndApplyUpdate()` exists only for the **manual** "Nach Updates suchen" row in Settings (mirrors the "Jetzt sperren" pattern — a manual trigger for something that also happens on its own): checks now, and if an update is available, downloads and applies it immediately (`Updates.reloadAsync()`, which restarts the app) rather than waiting for the next cold start. Returns a `"unavailable"` result (surfaced as an info toast, not an error) whenever `Updates.isEnabled` is `false` — Expo Go and dev builds included — the same graceful-degradation shape as `biometricAvailable` in `AppLockProvider` for missing hardware.
+- Publishing an update is a manual `eas update --channel <development|preview|production>` (or `--auto` to infer the channel from the current git branch) — this repo doesn't wire up CI for it.
 
 ### Toasts (`src/context/ToastProvider.tsx`)
 

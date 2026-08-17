@@ -201,6 +201,7 @@ import { Text, View, Card, ScreenContent } from "@/src/components/Themed";
 - [x] Real EPUB/MOBI/PDF reading via `WebView` (chapter-based EPUB/MOBI progress; no PDF page tracking yet)
 - [x] Real i18n: German + English via i18next, persisted language preference
 - [x] Reader font size control (EPUB/MOBI)
+- [x] OTA updates via `expo-updates`/EAS Update (automatic on cold start, plus a manual "Nach Updates suchen" row in Settings)
 - [ ] Persist theme choice locally (language already does, via `expo-secure-store` — bring theme in line)
 - [ ] Real cover-art extraction (PDF first-page thumbnail) — EPUB/MOBI already extract their declared cover image
 - [ ] PDF reading-position tracking (needs `react-native-pdf` + a dev client, or a JS-based PDF.js viewer with its own progress bridge — see CLAUDE.md)

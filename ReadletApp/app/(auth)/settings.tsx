@@ -13,6 +13,7 @@ import { useAppLock } from "@/src/context/AppLockProvider";
 import { useToast } from "@/src/context/ToastProvider";
 import { type ThemePreference, useThemePreference } from "@/src/context/ThemePreferenceProvider";
 import { type LanguagePreference, getLanguagePreference, setLanguagePreference } from "@/src/i18n";
+import { checkAndApplyUpdate } from "@/src/services/otaUpdates";
 import { goBack } from "@/src/utils/goBack";
 
 type IconName = React.ComponentProps<typeof FontAwesome>["name"];
@@ -33,6 +34,7 @@ export default function Settings() {
   const { pinEnabled, biometricEnabled, biometricAvailable, biometricLabel, setBiometricEnabled, lockNow } =
     useAppLock();
   const [language, setLanguage] = useState<LanguagePreference>(getLanguagePreference);
+  const [checkingForUpdate, setCheckingForUpdate] = useState(false);
 
   const textMuted = useThemeColor({}, "textMuted");
   const border = useThemeColor({}, "border");
@@ -69,6 +71,30 @@ export default function Settings() {
     if (!applied) {
       showToast(t("settings.biometricErrorToast", { label: biometricLabel }), "error");
     }
+  }
+
+  async function handleCheckForUpdates() {
+    if (checkingForUpdate) return;
+    setCheckingForUpdate(true);
+    showToast(t("settings.checkingForUpdatesToast"), "info");
+    const result = await checkAndApplyUpdate();
+    // "installed" never actually gets here in practice — reloadAsync()
+    // restarts the app before this line runs.
+    switch (result) {
+      case "upToDate":
+        showToast(t("settings.updateUpToDateToast"), "success");
+        break;
+      case "unavailable":
+        showToast(t("settings.updateUnavailableToast"), "info");
+        break;
+      case "error":
+        showToast(t("settings.updateErrorToast"), "error");
+        break;
+      case "installed":
+        showToast(t("settings.updateInstallingToast"), "info");
+        break;
+    }
+    setCheckingForUpdate(false);
   }
 
   const appLockRows = [
@@ -167,6 +193,17 @@ export default function Settings() {
               />
             );
           })}
+        </Card>
+
+        <SectionLabel color={textMuted}>{t("settings.updates")}</SectionLabel>
+        <Card style={styles.sectionCard}>
+          <ActionRow
+            icon="refresh"
+            label={t("settings.checkForUpdates")}
+            trailingIcon="chevron-right"
+            borderColor={border}
+            onPress={handleCheckForUpdates}
+          />
         </Card>
 
         <SectionLabel color={textMuted}>{t("settings.legal")}</SectionLabel>

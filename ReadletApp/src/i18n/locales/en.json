@@ -69,6 +69,13 @@
     "imprint": "Imprint",
     "linkErrorToast": "Couldn't open the link",
     "biometricErrorToast": "Couldn't enable {{label}}",
+    "updates": "Updates",
+    "checkForUpdates": "Check for updates",
+    "checkingForUpdatesToast": "Checking for updates …",
+    "updateUpToDateToast": "You're already on the latest version",
+    "updateInstallingToast": "Installing update, restarting app …",
+    "updateErrorToast": "Couldn't check for updates",
+    "updateUnavailableToast": "OTA updates aren't available in this environment",
     "footerVersion": "Readlet {{version}}",
     "footerCopyright": "© {{year}} Readlet"
   },

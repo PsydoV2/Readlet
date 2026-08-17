@@ -69,6 +69,13 @@
     "imprint": "Impressum",
     "linkErrorToast": "Link konnte nicht geöffnet werden",
     "biometricErrorToast": "{{label}} konnte nicht aktiviert werden",
+    "updates": "Updates",
+    "checkForUpdates": "Nach Updates suchen",
+    "checkingForUpdatesToast": "Suche nach Updates …",
+    "updateUpToDateToast": "Du hast bereits die neueste Version",
+    "updateInstallingToast": "Update wird installiert, App startet neu …",
+    "updateErrorToast": "Update konnte nicht geprüft werden",
+    "updateUnavailableToast": "In dieser Umgebung sind keine OTA-Updates verfügbar",
     "footerVersion": "Readlet {{version}}",
     "footerCopyright": "© {{year}} Readlet"
   },
