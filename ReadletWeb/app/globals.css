@@ -1,26 +1,123 @@
 @import "tailwindcss";
 
+/*
+  Design tokens copied verbatim from ../DESIGN.md (source of truth:
+  ../ReadletApp/src/constants/StyleVariables.ts). Keep in sync if either
+  changes — see DESIGN.md's "Web usage" section.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --canvas: #ffffff;
+  --surface: #f9f9f9;
+  --surface-hover: #f2f2f2;
+  --text: #171717;
+  --text-muted: #6b6b6b;
+  --text-subtle: #9e9e9e;
+  --border: #e5e5e5;
+  --border-muted: #f0f0f0;
+  --overlay: rgba(0, 0, 0, 0.5);
+  --primary: #2383e2;
+  --primary-soft: #e3f0fc;
+  --on-primary: #ffffff;
+  --secondary: #b8862e;
+  --success: #3a8259;
+  --on-success: #ffffff;
+  --warning: #c77c1f;
+  --on-warning: #ffffff;
+  --danger: #c23b3b;
+  --on-danger: #ffffff;
+  --info: #3d6e9c;
+  --on-info: #ffffff;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --canvas: #000000;
+    --surface: #0d0d0d;
+    --surface-hover: #1a1a1a;
+    --text: #ededed;
+    --text-muted: #a3a3a3;
+    --text-subtle: #737373;
+    --border: #2e2e2e;
+    --border-muted: #1f1f1f;
+    --overlay: rgba(0, 0, 0, 0.7);
+    --primary: #5b9fe3;
+    --primary-soft: #1b2c40;
+    --on-primary: #0e2035;
+    --secondary: #d9a94e;
+    --success: #5fae81;
+    --on-success: #12281b;
+    --warning: #e0a23d;
+    --on-warning: #2b1b05;
+    --danger: #e2685d;
+    --on-danger: #2b0e0a;
+    --info: #6fa0c9;
+    --on-info: #0f2333;
   }
 }
 
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-border: var(--border);
+  --color-border-muted: var(--border-muted);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-secondary: var(--secondary);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light dark;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Logo mark: logo.png is a flat black-on-white PNG (no alpha). Blending it
+   drops the white square in both themes instead of shipping two exports —
+   see ReadletWeb's page.tsx / CLAUDE.md for the reasoning. */
+.brand-mark {
+  mix-blend-mode: multiply;
+}
+
+@media (prefers-color-scheme: dark) {
+  .brand-mark {
+    filter: invert(1);
+    mix-blend-mode: screen;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-rise {
+    animation: rise 0.5s ease-out backwards;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

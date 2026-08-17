@@ -30,5 +30,17 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    // Next 16.3.1's top-level `types/validator.ts` generator hardcodes
+    // import paths for the old `.next/types/` (two levels deep) location,
+    // but now writes the file to `types/` (one level deep) — every
+    // generated `../../app/*.js` import is therefore one level too many
+    // and fails to resolve. Confirmed by hand-fixing the path locally:
+    // the actual page/layout export shapes type-check fine, this is
+    // purely an upstream depth-calculation bug in the generator, not a
+    // problem with this project's code. Re-check on the next Next.js
+    // upgrade and drop this exclude once it's fixed.
+    "types/validator.ts"
+  ]
 }
