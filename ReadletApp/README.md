@@ -198,14 +198,13 @@ import { Text, View, Card, ScreenContent } from "@/src/components/Themed";
 - [x] App shell: library grid, book detail, reader, import modal, settings (no native header/tab bar)
 - [x] Settings: theme (functional), app lock (PIN + optional biometrics, fully functional), Datenschutz/Impressum external links
 - [x] Real EPUB/MOBI/PDF import (`expo-document-picker`, `expo-file-system`) into a local SQLite library (`expo-sqlite`)
-- [x] Real EPUB/MOBI/PDF reading via `WebView` (chapter-based EPUB/MOBI progress; no PDF page tracking yet)
+- [x] Real EPUB/MOBI/PDF reading via `WebView`, page-based navigation/progress for all three formats (CSS-column pagination for EPUB/MOBI, an embedded pdf.js viewer for PDF — see CLAUDE.md's Reader section)
 - [x] Real i18n: German + English via i18next, persisted language preference
 - [x] Reader font size control (EPUB/MOBI)
 - [x] OTA updates via `expo-updates`/EAS Update (automatic on cold start, plus a manual "Nach Updates suchen" row in Settings)
 - [ ] Persist theme choice locally (language already does, via `expo-secure-store` — bring theme in line)
 - [ ] Real cover-art extraction (PDF first-page thumbnail) — EPUB/MOBI already extract their declared cover image
-- [ ] PDF reading-position tracking (needs `react-native-pdf` + a dev client, or a JS-based PDF.js viewer with its own progress bridge — see CLAUDE.md)
-- [ ] A real PDF page-count parser (current one is a byte-pattern heuristic)
+- [ ] Bundle pdf.js's cmaps/standard-fonts so non-embedded-font PDFs (mainly CJK) render correctly, and a pdf.js text layer for selection/search (see CLAUDE.md's Reader section — both skipped for the first pass)
 - [ ] MOBI HUFF/CDIC compression support (currently rejected with a clear error — only PalmDOC/uncompressed text is parsed)
 - [ ] Reader settings: font family, line height, margins
 - [ ] Reading stats (time spent, streaks)

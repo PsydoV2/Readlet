@@ -48,6 +48,14 @@ export function getDatabase(): Promise<SQLiteDatabase> {
       } catch {
         // Column already exists.
       }
+      // Same story again: pagePosition (0–1 position within the current
+      // chapter, EPUB/MOBI only — see src/types/Book.ts) was added once
+      // the reader gained page-level pagination.
+      try {
+        await db.execAsync(`ALTER TABLE books ADD COLUMN pagePosition REAL NOT NULL DEFAULT 0;`);
+      } catch {
+        // Column already exists.
+      }
       return db;
     });
   }

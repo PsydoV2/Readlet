@@ -19,6 +19,8 @@
     "finished": "Gelesen",
     "pages_one": "{{count}} Seite",
     "pages_other": "{{count}} Seiten",
+    "chapters_one": "{{count}} Kapitel",
+    "chapters_other": "{{count}} Kapitel",
     "sizeInMb": "{{size}} MB",
     "addedOn": "Hinzugefügt am {{date}}",
     "remove": "Aus Bibliothek entfernen",
@@ -28,11 +30,12 @@
   },
   "reader": {
     "notFound": "Buch nicht gefunden.",
-    "chapterOf": "Kapitel {{current}} von {{total}}",
-    "previousChapter": "Zurück",
-    "nextChapter": "Weiter",
+    "pageOf": "Seite {{current}} von {{total}}",
+    "previousPage": "Zurück",
+    "nextPage": "Weiter",
     "decreaseFontSize": "Schrift verkleinern",
-    "increaseFontSize": "Schrift vergrößern"
+    "increaseFontSize": "Schrift vergrößern",
+    "pdfLoadError": "PDF konnte nicht geladen werden."
   },
   "import": {
     "title": "Buch importieren",

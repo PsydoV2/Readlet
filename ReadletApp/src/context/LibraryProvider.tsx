@@ -1,6 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { deleteBook, getAllBooks, renameBook, updateFontSize, updateReadingPosition } from "@/src/db/booksRepository";
+import {
+  deleteBook,
+  getAllBooks,
+  renameBook,
+  updateFontSize,
+  updatePageCount,
+  updateReadingPosition,
+} from "@/src/db/booksRepository";
 import { deleteBookFiles, importBookFromPicker } from "@/src/services/importBook";
 import type { Book } from "@/src/types/Book";
 
@@ -14,7 +21,8 @@ type LibraryContextValue = {
   /** Runs the whole import flow; returns the new `Book`, or `null` if the user canceled the picker. Throws on an unsupported/malformed file. */
   importBook: () => Promise<Book | null>;
   removeBook: (id: string) => Promise<void>;
-  updateProgress: (id: string, currentPosition: number, progress: number) => Promise<void>;
+  updateProgress: (id: string, currentPosition: number, pagePosition: number, progress: number) => Promise<void>;
+  updatePageCount: (id: string, pageCount: number) => Promise<void>;
   updateFontSize: (id: string, fontSize: number) => Promise<void>;
   renameBook: (id: string, title: string) => Promise<void>;
 };
@@ -64,9 +72,17 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     [books, refresh]
   );
 
-  const updateProgress = useCallback(async (id: string, currentPosition: number, progress: number) => {
-    await updateReadingPosition(id, currentPosition, progress);
-    setBooks((prev) => prev.map((b) => (b.id === id ? { ...b, currentPosition, progress } : b)));
+  const updateProgress = useCallback(
+    async (id: string, currentPosition: number, pagePosition: number, progress: number) => {
+      await updateReadingPosition(id, currentPosition, pagePosition, progress);
+      setBooks((prev) => prev.map((b) => (b.id === id ? { ...b, currentPosition, pagePosition, progress } : b)));
+    },
+    []
+  );
+
+  const updatePageCountAction = useCallback(async (id: string, pageCount: number) => {
+    await updatePageCount(id, pageCount);
+    setBooks((prev) => prev.map((b) => (b.id === id ? { ...b, pageCount } : b)));
   }, []);
 
   const updateFontSizeAction = useCallback(async (id: string, fontSize: number) => {
@@ -90,6 +106,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       importBook,
       removeBook,
       updateProgress,
+      updatePageCount: updatePageCountAction,
       updateFontSize: updateFontSizeAction,
       renameBook: renameBookAction,
     }),
@@ -101,6 +118,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       importBook,
       removeBook,
       updateProgress,
+      updatePageCountAction,
       updateFontSizeAction,
       renameBookAction,
     ]

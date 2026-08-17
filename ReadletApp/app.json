@@ -54,7 +54,8 @@
       ],
       "expo-sqlite",
       "expo-localization",
-      "expo-updates"
+      "expo-updates",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

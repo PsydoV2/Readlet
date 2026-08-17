@@ -19,6 +19,8 @@
     "finished": "Finished",
     "pages_one": "{{count}} page",
     "pages_other": "{{count}} pages",
+    "chapters_one": "{{count}} chapter",
+    "chapters_other": "{{count}} chapters",
     "sizeInMb": "{{size}} MB",
     "addedOn": "Added on {{date}}",
     "remove": "Remove from library",
@@ -28,11 +30,12 @@
   },
   "reader": {
     "notFound": "Book not found.",
-    "chapterOf": "Chapter {{current}} of {{total}}",
-    "previousChapter": "Back",
-    "nextChapter": "Next",
+    "pageOf": "Page {{current}} of {{total}}",
+    "previousPage": "Back",
+    "nextPage": "Next",
     "decreaseFontSize": "Decrease font size",
-    "increaseFontSize": "Increase font size"
+    "increaseFontSize": "Increase font size",
+    "pdfLoadError": "Couldn't load the PDF."
   },
   "import": {
     "title": "Import a book",

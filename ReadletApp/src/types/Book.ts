@@ -51,12 +51,29 @@ export type Book = {
   pageCount: number | null;
 
   /**
-   * Current reading position: chapter index into `spine` for EPUB/MOBI,
-   * page number for PDFs (not currently updated while reading a PDF — see
-   * the reader screen). 0 for an unread book.
+   * Current reading position: chapter index into `spine` for EPUB/MOBI
+   * (0-based), 1-based page number for PDFs — both updated live by the
+   * reader screen as the user pages through (see
+   * `src/services/readerPagination.ts` / `src/services/pdfViewerHtml.ts`).
+   * 0 for an unread book (PDFs treat 0 the same as "not opened yet, start
+   * at page 1" — 0 isn't a valid PDF page number).
    */
   currentPosition: number;
-  /** 0–1, derived from `currentPosition` vs. `spine.length`/`pageCount`. */
+  /**
+   * EPUB/MOBI only: 0–1 position *within* the current chapter (`currentPosition`)
+   * — e.g. 0.5 roughly means "halfway through this chapter's pages". Always
+   * 0 for PDF, where `currentPosition` already *is* the page number, so no
+   * second within-unit fraction is needed. Chapter-level pagination varies
+   * with font size and screen size, so this fraction (not a raw page
+   * number, which would be meaningless after either changes) is what
+   * actually gets persisted and restored — see `readerPagination.ts`'s doc
+   * comment for the full reasoning.
+   */
+  pagePosition: number;
+  /**
+   * 0–1 overall progress through the book: `(currentPosition + pagePosition) / spine.length`
+   * for EPUB/MOBI, `currentPosition / pageCount` for PDF.
+   */
   progress: number;
 
   /**

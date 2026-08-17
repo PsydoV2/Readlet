@@ -156,7 +156,9 @@ export default function BookDetail() {
           {chapterOrPageCount != null && (
             <MetaChip
               icon="files-o"
-              label={t("bookDetail.pages", { count: chapterOrPageCount })}
+              label={t(isReflowableFormat(book.format) ? "bookDetail.chapters" : "bookDetail.pages", {
+                count: chapterOrPageCount,
+              })}
               background={surfaceHover}
             />
           )}

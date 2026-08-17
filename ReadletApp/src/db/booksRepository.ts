@@ -12,6 +12,7 @@ type BookRow = {
   coverUri: string | null;
   pageCount: number | null;
   currentPosition: number;
+  pagePosition: number;
   progress: number;
   sizeBytes: number;
   addedAt: string;
@@ -31,6 +32,7 @@ function rowToBook(row: BookRow): Book {
     coverUri: row.coverUri,
     pageCount: row.pageCount,
     currentPosition: row.currentPosition,
+    pagePosition: row.pagePosition,
     progress: row.progress,
     sizeBytes: row.sizeBytes,
     addedAt: row.addedAt,
@@ -55,8 +57,8 @@ export async function insertBook(book: Book): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(
     `INSERT INTO books
-       (id, title, author, format, fileUri, extractedDir, spine, coverUri, pageCount, currentPosition, progress, sizeBytes, addedAt, accent, fontSize)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (id, title, author, format, fileUri, extractedDir, spine, coverUri, pageCount, currentPosition, pagePosition, progress, sizeBytes, addedAt, accent, fontSize)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     book.id,
     book.title,
     book.author,
@@ -67,6 +69,7 @@ export async function insertBook(book: Book): Promise<void> {
     book.coverUri,
     book.pageCount,
     book.currentPosition,
+    book.pagePosition,
     book.progress,
     book.sizeBytes,
     book.addedAt,
@@ -75,14 +78,26 @@ export async function insertBook(book: Book): Promise<void> {
   );
 }
 
-export async function updateReadingPosition(id: string, currentPosition: number, progress: number): Promise<void> {
+export async function updateReadingPosition(
+  id: string,
+  currentPosition: number,
+  pagePosition: number,
+  progress: number
+): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(
-    "UPDATE books SET currentPosition = ?, progress = ? WHERE id = ?",
+    "UPDATE books SET currentPosition = ?, pagePosition = ?, progress = ? WHERE id = ?",
     currentPosition,
+    pagePosition,
     progress,
     id
   );
+}
+
+/** Reconciles `book.pageCount` (an import-time byte-pattern heuristic, see `src/services/pdfService.ts`) with pdf.js's real page count once a PDF has actually been opened in the reader. */
+export async function updatePageCount(id: string, pageCount: number): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync("UPDATE books SET pageCount = ? WHERE id = ?", pageCount, id);
 }
 
 export async function updateFontSize(id: string, fontSize: number): Promise<void> {

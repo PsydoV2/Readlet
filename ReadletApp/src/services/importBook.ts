@@ -6,6 +6,7 @@ import { insertBook } from "@/src/db/booksRepository";
 import { extractAndParseEpub } from "@/src/services/epubService";
 import { extractAndParseMobi } from "@/src/services/mobiService";
 import { estimatePdfPageCount } from "@/src/services/pdfService";
+import { pdfViewerDirForDeletion } from "@/src/services/pdfViewerHtml";
 import type { Book, BookFormat } from "@/src/types/Book";
 import { accentColorForId } from "@/src/utils/accentColor";
 
@@ -80,10 +81,17 @@ export async function importBookFromPicker(): Promise<Book | null> {
 
   const destination = new File(booksDir, `${id}.${format}`);
   const pickedFile = new File(asset.uri);
-  const bytes = await pickedFile.bytes();
-  destination.create({ intermediates: true, overwrite: true });
-  destination.write(bytes);
-  console.log(`[Import] Datei kopiert nach ${destination.uri} (${bytes.length} Bytes, id=${id}).`);
+  // Native (stream/channel-based) copy, not `bytes()`/`write()` — reading a
+  // picked file's *entire* content into one JS `Uint8Array` (as `bytes()`
+  // would) allocates a single contiguous buffer the size of the whole
+  // file, which reliably OOMs on Android for a large PDF (scanned books
+  // can run to hundreds of MB) well before it'd ever reach the reader.
+  // `copy()` streams instead, so memory use stays flat regardless of file
+  // size — same reasoning as reading the picked file's bytes at all: it's
+  // a `content://` URI (see the picker-options comment above), which
+  // `copy()` handles as a source the same as any other `File`.
+  await pickedFile.copy(destination, { overwrite: true });
+  console.log(`[Import] Datei kopiert nach ${destination.uri} (${destination.size ?? "?"} Bytes, id=${id}).`);
 
   let title = asset.name.replace(/\.(epub|pdf|mobi|azw3?|azw)$/i, "");
   let author = "Unbekannt";
@@ -114,6 +122,7 @@ export async function importBookFromPicker(): Promise<Book | null> {
     coverUri,
     pageCount,
     currentPosition: 0,
+    pagePosition: 0,
     progress: 0,
     sizeBytes: destination.size ?? asset.size ?? 0,
     addedAt: new Date().toISOString(),
@@ -126,7 +135,7 @@ export async function importBookFromPicker(): Promise<Book | null> {
   return book;
 }
 
-/** Removes a book's copied source file and (for EPUB/MOBI) its extracted folder. Best-effort — swallows errors so a stale/missing file never blocks deleting the library row. */
+/** Removes a book's copied source file, (for EPUB/MOBI) its extracted folder, and (for PDF) its generated pdf.js viewer folder (see `pdfViewerHtml.ts`). Best-effort — swallows errors so a stale/missing file never blocks deleting the library row. */
 export async function deleteBookFiles(book: Book): Promise<void> {
   try {
     new File(book.fileUri).delete();
@@ -136,6 +145,13 @@ export async function deleteBookFiles(book: Book): Promise<void> {
   if (book.extractedDir) {
     try {
       new Directory(book.extractedDir).delete();
+    } catch {
+      // Same as above.
+    }
+  }
+  if (book.format === "pdf") {
+    try {
+      pdfViewerDirForDeletion(book.id).delete();
     } catch {
       // Same as above.
     }
