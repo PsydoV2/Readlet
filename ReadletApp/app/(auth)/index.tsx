@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, FlatList, Pressable, StyleSheet } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
@@ -9,6 +9,8 @@ import { Text, View, useThemeColor } from "@/src/components/Themed";
 import Colors from "@/src/constants/StyleVariables";
 import { useLibrary } from "@/src/context/LibraryProvider";
 import { useToast } from "@/src/context/ToastProvider";
+
+const NUM_COLUMNS = 2;
 
 /**
  * Library — the app's home screen: a grid of imported books with cover
@@ -19,6 +21,12 @@ export default function Library() {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width: windowWidth } = useWindowDimensions();
+  // Fixed per-card width (not `flex: 1` on the card itself) so every book
+  // renders at the same size regardless of how many share its row — an odd
+  // book count would otherwise leave a lone last-row card stretched to the
+  // full row width. See BookCard's own comment.
+  const cardWidth = (windowWidth - Colors.gapLarge * 2 - Colors.gapMedium) / NUM_COLUMNS;
   const { books, isLoading, importBook, isImporting } = useLibrary();
   const { showToast } = useToast();
   const primary = useThemeColor({}, "primary");
@@ -88,14 +96,14 @@ export default function Library() {
         <FlatList
           data={books}
           keyExtractor={(book) => book.id}
-          numColumns={2}
+          numColumns={NUM_COLUMNS}
           style={styles.list}
           columnWrapperStyle={styles.row}
           contentContainerStyle={[
             styles.listContent,
             { paddingTop: Colors.gapLarge, paddingBottom: insets.bottom + Colors.gapXXXLarge },
           ]}
-          renderItem={({ item }) => <BookCard book={item} />}
+          renderItem={({ item }) => <BookCard book={item} width={cardWidth} />}
           ListEmptyComponent={
             <Pressable
               onPress={handlePick}

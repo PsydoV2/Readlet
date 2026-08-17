@@ -7,7 +7,7 @@ import { Text, View, useThemeColor } from "@/src/components/Themed";
 import Colors from "@/src/constants/StyleVariables";
 import type { Book } from "@/src/types/Book";
 
-export default function BookCard({ book }: { book: Book }) {
+export default function BookCard({ book, width }: { book: Book; width: number }) {
   const router = useRouter();
   const borderMuted = useThemeColor({}, "borderMuted");
   const primary = useThemeColor({}, "primary");
@@ -25,7 +25,7 @@ export default function BookCard({ book }: { book: Book }) {
       onPress={() =>
         router.push({ pathname: "/book/[id]", params: { id: book.id } })
       }
-      style={({ pressed }) => [styles.root, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.root, { width }, pressed && styles.pressed]}
     >
       <View
         style={[
@@ -82,7 +82,10 @@ export default function BookCard({ book }: { book: Book }) {
 
 const styles = StyleSheet.create({
   root: {
-    flex: 1,
+    // Fixed `width` (computed by the Library screen from the window width,
+    // not `flex: 1`) so every card renders at the same size regardless of
+    // how many books share its row — a `flex: 1` card in a lone-item last
+    // row would otherwise stretch to fill the full row width.
     gap: Colors.gapXSmall,
     marginBottom: Colors.gapLarge,
   },
