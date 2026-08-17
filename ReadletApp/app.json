@@ -16,7 +16,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#FAF9F7"
+        "backgroundColor": "#FFFFFF"
       }
     },
     "plugins": [
@@ -27,9 +27,9 @@
         {
           "image": "./assets/images/splash.png",
           "resizeMode": "contain",
-          "backgroundColor": "#FAF9F7",
+          "backgroundColor": "#FFFFFF",
           "dark": {
-            "backgroundColor": "#181614"
+            "backgroundColor": "#000000"
           }
         }
       ],

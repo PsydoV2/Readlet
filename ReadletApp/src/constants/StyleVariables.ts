@@ -1,29 +1,37 @@
 /**
- * Readlet design system: Notion's neutral, content-first minimalism (warm
- * off-white/ink canvas, borders over shadows) crossed with Airbnb's
- * confident polish (one warm accent, rounded corners, sparing elevation).
+ * Readlet design system: Notion's neutral, content-first minimalism crossed
+ * with Airbnb's confident polish (one warm accent, rounded corners, sparing
+ * elevation).
+ *
+ * Backgrounds are pure white / pure black — true neutral gray, zero hue —
+ * the same rule Notion and Airbnb both follow: a tinted "off-white" or
+ * "near-black" never reads as clean, it reads as dirty. Color is reserved
+ * for the accent and status tokens below, never mixed into a background.
  *
  * `light`/`dark` are flat color maps sharing the same keys — add new colors
  * to both. Everything else is a flat, theme-independent token.
  */
 const StyleVariables = {
   light: {
-    // Background layers, back to front.
-    canvas: "#FAF9F7", // page/screen background — warm off-white, not clinical white
-    surface: "#FFFFFF", // cards, sheets, anything raised above the canvas
-    surfaceHover: "#F1EFEC", // pressed/hover fill, input backgrounds, subtle chips
+    // Background layers, back to front. Flat by design — canvas and surface
+    // are both pure white; cards separate from the page via `border` only,
+    // not a background shift.
+    canvas: "#FFFFFF", // page/screen background — pure white, no tint
+    surface: "#f9f9f9", // cards, sheets, anything raised above the canvas
+    surfaceHover: "#F2F2F2", // pressed/hover fill, input backgrounds, subtle chips
 
-    // Text, high to low emphasis.
-    text: "#1C1B1A", // primary text — warm ink, not pure black
-    textMuted: "#6F6B66", // secondary text, labels
-    textSubtle: "#A29D97", // placeholders, disabled, tertiary hints
+    // Text, high to low emphasis — true neutral gray, no hue.
+    text: "#171717",
+    textMuted: "#6B6B6B",
+    textSubtle: "#9E9E9E",
 
-    border: "#E7E4E0", // default card/divider border
-    borderMuted: "#F0EEEB", // barely-there divider, inactive icons
+    border: "#E5E5E5", // default card/divider border
+    borderMuted: "#F0F0F0", // barely-there divider, inactive icons
 
-    overlay: "rgba(28, 22, 18, 0.5)", // modal/sheet scrim
+    overlay: "rgba(0, 0, 0, 0.5)", // modal/sheet scrim
 
-    // Brand accent — warm terracotta. Primary actions, active states, links.
+    // Brand accent — warm terracotta. The one deliberate spot of color;
+    // never used for a background. Primary actions, active states, links.
     primary: "#BF5B2E",
     primarySoft: "#FBE7DC", // tinted background for badges/active nav using primary
     onPrimary: "#FFFFFF", // text/icon color on top of a solid primary surface
@@ -42,26 +50,28 @@ const StyleVariables = {
   },
 
   dark: {
-    canvas: "#181614", // warm near-black — not pure #000, easier for night reading
-    surface: "#211E1B",
-    surfaceHover: "#2A2622",
+    // Pure black, not a "near-black" — also the right call for an e-reader:
+    // true black costs zero power per pixel on OLED screens.
+    canvas: "#000000",
+    surface: "#0d0d0d",
+    surfaceHover: "#1A1A1A",
 
-    text: "#F5F1EC", // warm off-white, not pure white
-    textMuted: "#A79E93",
-    textSubtle: "#736A60",
+    text: "#EDEDED",
+    textMuted: "#A3A3A3",
+    textSubtle: "#737373",
 
-    border: "#332E29",
-    borderMuted: "#241F1A",
+    border: "#2E2E2E",
+    borderMuted: "#1F1F1F",
 
-    overlay: "rgba(0, 0, 0, 0.6)",
+    overlay: "rgba(0, 0, 0, 0.7)",
 
-    primary: "#E08650", // lighter terracotta so it pops on the dark canvas
+    primary: "#E08650", // lighter terracotta so it pops on the black canvas
     primarySoft: "#3A2A20",
     onPrimary: "#1C1108", // near-black text/icons on the lighter primary
 
     secondary: "#D9A94E",
 
-    // Status colors are lightened to pop on the dark canvas, so — like
+    // Status colors are lightened to pop on the black canvas, so — like
     // `onPrimary` — their "on" text/icon color flips to dark ink.
     success: "#5FAE81",
     warning: "#E0A23D",

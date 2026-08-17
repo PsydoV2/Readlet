@@ -68,16 +68,18 @@ Press `i` for the iOS simulator or `a` for the Android emulator.
 ## 🎨 Design system
 
 Everything lives in `src/constants/StyleVariables.ts`: Notion-style neutral,
-content-first minimalism (warm off-white/ink canvas, borders over shadows)
-crossed with Airbnb-style polish (a single warm terracotta accent, generous
-rounded corners, soft elevation used sparingly).
+content-first minimalism crossed with Airbnb-style polish (a single warm
+terracotta accent, generous rounded corners, soft elevation used sparingly).
+Backgrounds are pure white (light) / pure black (dark) — true neutral gray,
+no tint mixed in, the way Notion and Airbnb both keep it clean. Color is
+reserved for the accent/status tokens, never a background.
 
 `light` and `dark` are flat color maps sharing the same keys:
 
 | Key                          | Usage                                         |
 | ----------------------------- | ---------------------------------------------- |
-| `canvas`                      | Screen background, tab bar                     |
-| `surface`                     | Cards, sheets                                  |
+| `canvas`                      | Screen background, tab bar (pure white/black)  |
+| `surface`                     | Cards, sheets (same pure white as `canvas` in light mode, separated only by `border`; one step lighter than the pure-black `canvas` in dark mode) |
 | `surfaceHover`                | Pressed/hover fill, input backgrounds          |
 | `text` / `textMuted` / `textSubtle` | Primary / secondary / placeholder text   |
 | `border` / `borderMuted`      | Card borders, dividers                         |
