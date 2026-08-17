@@ -4,7 +4,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-An Expo (SDK 57) starter template providing authentication, file-based routing (expo-router v7), and themed UI components. It's meant to be cloned/forked as the base for new React Native projects — `app/AuthScreen.tsx` and `constants/APIRoutes.ts` contain demo/placeholder logic that consuming projects are expected to replace.
+**Readlet** — a clean, modern e-reader app for iOS/Android. Design inspiration: Notion's minimalism + AirBnB's visual polish. Core principles:
+
+- No account required, no internet needed, no ads
+- Local-first: all books stored on device
+- Supports EPUB and PDF import
+- Reading experience that feels like 2025, not 2010
+
+### Product vision
+
+Users import their own ebooks (EPUB/PDF) via the native file picker or share sheet. The app presents a beautiful library view and a distraction-free reading space. No subscriptions, no tracking, no cruft.
+
+### Planned screens / flows
+
+1. **Library** (`app/(tabs)/index.tsx`) — grid/list of imported books with cover art, title, author, reading progress
+2. **Import** — file picker (DocumentPicker) for EPUB/PDF; metadata extraction on import
+3. **Reader** — EPUB rendered via `react-native-epub-view` or similar; PDF via `react-native-pdf`; reader settings (font size, font family, theme, line height, margins)
+4. **Book detail** — cover, metadata, reading stats, delete option
+
+### Key libraries (to evaluate/add)
+
+- `expo-document-picker` — file import
+- `expo-file-system` — local storage of book files
+- `react-native-epub-view` / `epubjs` — EPUB rendering
+- `react-native-pdf` — PDF rendering
+- `@op-engineering/op-sqlite` or `expo-sqlite` — local DB for library metadata + reading positions
+
+### No-auth stance
+
+Auth/session infrastructure from the starter template is stripped — this app is fully local, no backend. `app/AuthScreen.tsx`, `src/context/AuthContext.tsx`, `src/context/UserProvider.tsx`, `src/hooks/useAPI.ts`, and `constants/APIRoutes.ts` will be removed or repurposed.
 
 ## Commands
 
