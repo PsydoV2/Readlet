@@ -59,11 +59,16 @@ export default function Reader() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
-  const { books, updateProgress } = useLibrary();
+  const { books, updateProgress, updateFontSize } = useLibrary();
   const book = books.find((b) => b.id === id);
 
   const [loadError, setLoadError] = useState(false);
-  const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
+  // Lazy initializer: reads the book's last-saved font size once on mount,
+  // so reopening a book doesn't reset it to the default. Safe to read
+  // `book` here (rather than syncing via an effect) because `LibraryProvider`
+  // has already loaded the full library by the time this screen can be
+  // navigated to — see CLAUDE.md's Library data & import section.
+  const [fontSize, setFontSize] = useState(() => book?.fontSize ?? DEFAULT_FONT_SIZE);
   const webviewRef = useRef<WebView>(null);
 
   const canvas = useThemeColor({}, "canvas");
@@ -115,11 +120,24 @@ export default function Reader() {
     [buildReaderStyleScript, fontSize],
   );
 
+  // `injectedJavaScript` only runs after the page's own load event — by
+  // then the WebView has already painted a default white frame, which
+  // shows as a brief flash on every chapter change (each one remounts the
+  // WebView via `key={sourceUri}`). Paint the theme background as early as
+  // possible instead: `injectedJavaScriptBeforeContentLoaded` runs at
+  // document-start, before the page has parsed/painted anything, so
+  // setting it straight on `<html>` here pre-empts that white frame.
+  const injectedJavaScriptBeforeContentLoaded = useMemo(
+    () => `document.documentElement.style.backgroundColor = ${JSON.stringify(canvas)}; true;`,
+    [canvas],
+  );
+
   function handleFontSizeChange(direction: 1 | -1) {
     setFontSize((prev) => {
       const next = Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, prev + direction * FONT_SIZE_STEP));
       if (next !== prev) {
         webviewRef.current?.injectJavaScript(buildReaderStyleScript(next));
+        if (book) void updateFontSize(book.id, next);
       }
       return next;
     });
@@ -213,12 +231,13 @@ export default function Reader() {
               key={sourceUri}
               ref={webviewRef}
               source={{ uri: sourceUri }}
-              style={styles.webview}
+              style={[styles.webview, { backgroundColor: canvas }]}
               originWhitelist={["*"]}
               allowFileAccess
               allowFileAccessFromFileURLs
               allowUniversalAccessFromFileURLs
               allowingReadAccessToURL={book.extractedDir ?? undefined}
+              injectedJavaScriptBeforeContentLoaded={isReflowable ? injectedJavaScriptBeforeContentLoaded : undefined}
               injectedJavaScript={isReflowable ? injectedJavaScript : undefined}
               onError={() => setLoadError(true)}
             />

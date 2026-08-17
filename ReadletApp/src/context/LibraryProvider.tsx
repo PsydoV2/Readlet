@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { deleteBook, getAllBooks, renameBook, updateReadingPosition } from "@/src/db/booksRepository";
+import { deleteBook, getAllBooks, renameBook, updateFontSize, updateReadingPosition } from "@/src/db/booksRepository";
 import { deleteBookFiles, importBookFromPicker } from "@/src/services/importBook";
 import type { Book } from "@/src/types/Book";
 
@@ -15,6 +15,7 @@ type LibraryContextValue = {
   importBook: () => Promise<Book | null>;
   removeBook: (id: string) => Promise<void>;
   updateProgress: (id: string, currentPosition: number, progress: number) => Promise<void>;
+  updateFontSize: (id: string, fontSize: number) => Promise<void>;
   renameBook: (id: string, title: string) => Promise<void>;
 };
 
@@ -68,6 +69,11 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     setBooks((prev) => prev.map((b) => (b.id === id ? { ...b, currentPosition, progress } : b)));
   }, []);
 
+  const updateFontSizeAction = useCallback(async (id: string, fontSize: number) => {
+    await updateFontSize(id, fontSize);
+    setBooks((prev) => prev.map((b) => (b.id === id ? { ...b, fontSize } : b)));
+  }, []);
+
   const renameBookAction = useCallback(async (id: string, title: string) => {
     const trimmed = title.trim();
     if (!trimmed) return;
@@ -84,9 +90,20 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       importBook,
       removeBook,
       updateProgress,
+      updateFontSize: updateFontSizeAction,
       renameBook: renameBookAction,
     }),
-    [books, isLoading, isImporting, refresh, importBook, removeBook, updateProgress, renameBookAction]
+    [
+      books,
+      isLoading,
+      isImporting,
+      refresh,
+      importBook,
+      removeBook,
+      updateProgress,
+      updateFontSizeAction,
+      renameBookAction,
+    ]
   );
 
   return <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>;

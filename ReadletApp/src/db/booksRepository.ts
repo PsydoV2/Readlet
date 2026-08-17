@@ -16,6 +16,7 @@ type BookRow = {
   sizeBytes: number;
   addedAt: string;
   accent: string;
+  fontSize: number | null;
 };
 
 function rowToBook(row: BookRow): Book {
@@ -34,6 +35,7 @@ function rowToBook(row: BookRow): Book {
     sizeBytes: row.sizeBytes,
     addedAt: row.addedAt,
     accent: row.accent,
+    fontSize: row.fontSize,
   };
 }
 
@@ -53,8 +55,8 @@ export async function insertBook(book: Book): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(
     `INSERT INTO books
-       (id, title, author, format, fileUri, extractedDir, spine, coverUri, pageCount, currentPosition, progress, sizeBytes, addedAt, accent)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (id, title, author, format, fileUri, extractedDir, spine, coverUri, pageCount, currentPosition, progress, sizeBytes, addedAt, accent, fontSize)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     book.id,
     book.title,
     book.author,
@@ -68,7 +70,8 @@ export async function insertBook(book: Book): Promise<void> {
     book.progress,
     book.sizeBytes,
     book.addedAt,
-    book.accent
+    book.accent,
+    book.fontSize
   );
 }
 
@@ -80,6 +83,11 @@ export async function updateReadingPosition(id: string, currentPosition: number,
     progress,
     id
   );
+}
+
+export async function updateFontSize(id: string, fontSize: number): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync("UPDATE books SET fontSize = ? WHERE id = ?", fontSize, id);
 }
 
 export async function renameBook(id: string, title: string): Promise<void> {

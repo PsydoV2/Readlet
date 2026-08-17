@@ -41,6 +41,13 @@ export function getDatabase(): Promise<SQLiteDatabase> {
       } catch {
         // Column already exists.
       }
+      // Same story as coverUri above: fontSize was added after this table
+      // shipped.
+      try {
+        await db.execAsync(`ALTER TABLE books ADD COLUMN fontSize INTEGER;`);
+      } catch {
+        // Column already exists.
+      }
       return db;
     });
   }

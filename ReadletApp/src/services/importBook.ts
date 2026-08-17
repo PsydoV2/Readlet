@@ -118,6 +118,7 @@ export async function importBookFromPicker(): Promise<Book | null> {
     sizeBytes: destination.size ?? asset.size ?? 0,
     addedAt: new Date().toISOString(),
     accent: accentColorForId(id),
+    fontSize: null,
   };
 
   await insertBook(book);

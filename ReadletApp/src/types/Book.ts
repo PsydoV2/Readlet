@@ -59,6 +59,15 @@ export type Book = {
   /** 0–1, derived from `currentPosition` vs. `spine.length`/`pageCount`. */
   progress: number;
 
+  /**
+   * EPUB/MOBI only: the reader's last-used font size in px, so it doesn't
+   * reset to the default every time the book is reopened. Null until the
+   * user changes it at least once (the reader falls back to its own
+   * default in that case); always null for PDFs, which have no reader-
+   * controlled font size (see the reader screen).
+   */
+  fontSize: number | null;
+
   sizeBytes: number;
   /** ISO date string. */
   addedAt: string;
