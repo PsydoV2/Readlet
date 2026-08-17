@@ -3,7 +3,7 @@
 A clean, modern e-reader for iOS and Android. No account, no internet required, no ads — everything lives on your device.
 
 - Local-first: books never leave your phone
-- Supports EPUB and PDF import
+- Supports EPUB, MOBI (DRM-free), and PDF import
 - Distraction-free reading, styled like it's 2025
 
 Built with [`expo-router`](https://docs.expo.dev/router/introduction/) and TypeScript.
@@ -55,6 +55,7 @@ ReadletApp/
 │   │   ├── appLockStorage.ts  # PIN/biometric-pref persistence via expo-secure-store
 │   │   ├── importBook.ts      # Picker → copy into app storage → parse → insert into DB
 │   │   ├── epubService.ts     # Unzip (jszip) + parse container.xml/OPF (fast-xml-parser)
+│   │   ├── mobiService.ts     # Hand-rolled PalmDB/MOBI parser + PalmDOC decompression (no library)
 │   │   └── pdfService.ts      # Best-effort page-count heuristic (no real PDF parser)
 │   ├── types/
 │   │   └── Book.ts
@@ -89,19 +90,25 @@ with `headerShown: false` everywhere, and every screen draws its own chrome
   `app/(auth)/_layout.tsx` redirects to `app/lock.tsx` whenever locked.
   Settings → "Jetzt sperren" triggers it on demand for testing.
 - **Import** — the "+" button opens the real system file picker
-  (`expo-document-picker`), copies the chosen EPUB/PDF into app storage
+  (`expo-document-picker`), copies the chosen EPUB/MOBI/PDF into app storage
   (`expo-file-system`'s newer `File`/`Directory` API), and inserts it into a
   local SQLite library (`expo-sqlite`). EPUBs are unzipped (`jszip`) and
   their OPF package document parsed (`fast-xml-parser`) for title/author/chapter
-  order; PDFs get a best-effort page-count _estimate_ (byte-pattern heuristic,
-  not a real PDF parser).
+  order; MOBI files are parsed by hand (`src/services/mobiService.ts` — no
+  library exists for this, the format's small enough to read directly) —
+  DRM-encrypted files and the less common HUFF/CDIC text compression are
+  explicitly unsupported and rejected with a clear error; PDFs get a
+  best-effort page-count _estimate_ (byte-pattern heuristic, not a real PDF
+  parser).
 - **Reading** — the Reader screen renders the real book via a `WebView`
   (chosen deliberately over `react-native-pdf`/a native EPUB library so the
-  app stays on Expo Go, no custom dev-client build). EPUB progress is
-  chapter-based (no in-chapter pagination); PDF page count is estimated but
-  reading _position_ isn't tracked yet, since the WebView's built-in PDF
-  viewer doesn't expose page-change events to JS — see CLAUDE.md's Reader
-  section for the full reasoning and what a native-library upgrade would buy.
+  app stays on Expo Go, no custom dev-client build). EPUB/MOBI progress is
+  chapter-based (no in-chapter pagination — MOBI has no real chapter list of
+  its own, so one is synthesized from its `<mbp:pagebreak>`/heading markers);
+  PDF page count is estimated but reading _position_ isn't tracked yet,
+  since the WebView's built-in PDF viewer doesn't expose page-change events
+  to JS — see CLAUDE.md's Reader section for the full reasoning and what a
+  native-library upgrade would buy.
 
 ---
 
@@ -127,8 +134,8 @@ Press `i` for the iOS simulator or `a` for the Android emulator.
 | Language     | **TypeScript 6.0** (strict)                                                                                |
 | Platforms    | **iOS · Android** (no web target)                                                                          |
 | Storage      | **expo-sqlite** (library metadata) · **expo-file-system** (book files) · **expo-secure-store** (PIN/prefs) |
-| Import       | **expo-document-picker** · **jszip** + **fast-xml-parser** (EPUB unzip/parse)                              |
-| Reading      | **react-native-webview** (EPUB chapters + PDF, in place of a native reader lib — see CLAUDE.md)            |
+| Import       | **expo-document-picker** · **jszip** + **fast-xml-parser** (EPUB unzip/parse) · hand-rolled MOBI parser (no library) |
+| Reading      | **react-native-webview** (EPUB/MOBI chapters + PDF, in place of a native reader lib — see CLAUDE.md)       |
 | i18n         | **i18next** + **react-i18next** · **expo-localization** (device locale)                                    |
 | Testing      | **Jest + jest-expo**                                                                                       |
 
@@ -190,14 +197,16 @@ import { Text, View, Card, ScreenContent } from "@/src/components/Themed";
 
 - [x] App shell: library grid, book detail, reader, import modal, settings (no native header/tab bar)
 - [x] Settings: theme (functional), app lock (PIN + optional biometrics, fully functional), Datenschutz/Impressum external links
-- [x] Real EPUB/PDF import (`expo-document-picker`, `expo-file-system`) into a local SQLite library (`expo-sqlite`)
-- [x] Real EPUB/PDF reading via `WebView` (chapter-based EPUB progress; no PDF page tracking yet)
+- [x] Real EPUB/MOBI/PDF import (`expo-document-picker`, `expo-file-system`) into a local SQLite library (`expo-sqlite`)
+- [x] Real EPUB/MOBI/PDF reading via `WebView` (chapter-based EPUB/MOBI progress; no PDF page tracking yet)
 - [x] Real i18n: German + English via i18next, persisted language preference
+- [x] Reader font size control (EPUB/MOBI)
 - [ ] Persist theme choice locally (language already does, via `expo-secure-store` — bring theme in line)
-- [ ] Real cover-art extraction (EPUB manifest cover image; PDF first-page thumbnail) instead of the placeholder color block
+- [ ] Real cover-art extraction (PDF first-page thumbnail) — EPUB/MOBI already extract their declared cover image
 - [ ] PDF reading-position tracking (needs `react-native-pdf` + a dev client, or a JS-based PDF.js viewer with its own progress bridge — see CLAUDE.md)
 - [ ] A real PDF page-count parser (current one is a byte-pattern heuristic)
-- [ ] Reader settings: font size, font family, line height, margins
+- [ ] MOBI HUFF/CDIC compression support (currently rejected with a clear error — only PalmDOC/uncompressed text is parsed)
+- [ ] Reader settings: font family, line height, margins
 - [ ] Reading stats (time spent, streaks)
 
 ---

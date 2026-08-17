@@ -7,7 +7,7 @@
     "count_one": "{{count}} Buch",
     "count_other": "{{count}} Bücher",
     "emptyTitle": "Deine Bibliothek ist leer",
-    "emptySubtitle": "Importiere ein EPUB oder PDF, um loszulegen."
+    "emptySubtitle": "Importiere ein EPUB, MOBI oder PDF, um loszulegen."
   },
   "bookDetail": {
     "notFound": "Buch nicht gefunden.",
@@ -30,19 +30,23 @@
     "notFound": "Buch nicht gefunden.",
     "chapterOf": "Kapitel {{current}} von {{total}}",
     "previousChapter": "Zurück",
-    "nextChapter": "Weiter"
+    "nextChapter": "Weiter",
+    "decreaseFontSize": "Schrift verkleinern",
+    "increaseFontSize": "Schrift vergrößern"
   },
   "import": {
     "title": "Buch importieren",
-    "dropTitle": "EPUB oder PDF auswählen",
+    "dropTitle": "EPUB, MOBI oder PDF auswählen",
     "dropSubtitle": "Das Buch bleibt lokal auf deinem Gerät — kein Upload, kein Account nötig.",
     "pickButton": "Datei auswählen",
-    "hint": "Unterstützt .epub und .pdf",
+    "hint": "Unterstützt .epub, .mobi/.azw3 und .pdf",
     "importingToast": "Buch wird importiert …",
     "successToast": "„{{title}}“ importiert",
     "errorToast": "Import fehlgeschlagen: {{message}}",
     "errors": {
-      "unsupportedFormat": "Nicht unterstütztes Dateiformat — nur EPUB und PDF werden unterstützt."
+      "unsupportedFormat": "Nicht unterstütztes Dateiformat — nur EPUB, MOBI und PDF werden unterstützt.",
+      "drmProtected": "Diese Datei ist kopiergeschützt (DRM) und kann nicht importiert werden. Nur DRM-freie Dateien werden unterstützt.",
+      "unsupportedMobiCompression": "Dieses MOBI verwendet ein nicht unterstütztes Kompressionsformat (HUFF/CDIC) und kann nicht importiert werden."
     }
   },
   "settings": {

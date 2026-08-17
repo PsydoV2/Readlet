@@ -9,6 +9,7 @@ import { Text, View, useThemeColor } from "@/src/components/Themed";
 import Colors from "@/src/constants/StyleVariables";
 import { useLibrary } from "@/src/context/LibraryProvider";
 import { useToast } from "@/src/context/ToastProvider";
+import { isReflowableFormat } from "@/src/types/Book";
 import { goBack } from "@/src/utils/goBack";
 
 export default function BookDetail() {
@@ -51,7 +52,7 @@ export default function BookDetail() {
       ? t("bookDetail.ctaStart")
       : t("bookDetail.ctaContinue");
 
-  const chapterOrPageCount = book.format === "epub" ? book.spine.length : book.pageCount;
+  const chapterOrPageCount = isReflowableFormat(book.format) ? book.spine.length : book.pageCount;
   const dateFormatter = new Intl.DateTimeFormat(i18n.language === "en" ? "en-US" : "de-DE", {
     day: "numeric",
     month: "long",
@@ -113,26 +114,36 @@ export default function BookDetail() {
               <TextInput
                 value={titleDraft}
                 onChangeText={setTitleDraft}
-                style={[styles.titleInput, { color: text, borderBottomColor: border }]}
+                style={[styles.titleInput, { color: text, borderBottomColor: primary }]}
                 autoFocus
                 selectTextOnFocus
                 maxLength={200}
                 returnKeyType="done"
                 onSubmitEditing={handleConfirmRename}
               />
-              <Pressable onPress={handleConfirmRename} hitSlop={8} style={styles.titleEditButton}>
-                <FontAwesome name="check" size={16} color={primary} />
-              </Pressable>
-              <Pressable onPress={handleCancelRename} hitSlop={8} style={styles.titleEditButton}>
-                <FontAwesome name="close" size={16} color={textMuted} />
-              </Pressable>
+              <View style={styles.titleEditActions}>
+                <Pressable
+                  onPress={handleCancelRename}
+                  hitSlop={8}
+                  style={[styles.titleEditButton, { backgroundColor: surfaceHover }]}
+                >
+                  <FontAwesome name="close" size={16} color={textMuted} />
+                </Pressable>
+                <Pressable
+                  onPress={handleConfirmRename}
+                  hitSlop={8}
+                  style={[styles.titleEditButton, { backgroundColor: primary }]}
+                >
+                  <FontAwesome name="check" size={16} color={onPrimary} />
+                </Pressable>
+              </View>
             </View>
           ) : (
             <View style={styles.titleRow}>
               <Text style={styles.title} numberOfLines={2}>
                 {book.title}
               </Text>
-              <Pressable onPress={handleStartRename} hitSlop={8} style={styles.titleEditButton}>
+              <Pressable onPress={handleStartRename} hitSlop={8} style={styles.pencilButton}>
                 <FontAwesome name="pencil" size={14} color={textMuted} />
               </Pressable>
             </View>
@@ -162,7 +173,7 @@ export default function BookDetail() {
               <Text style={[styles.progressLabel, { color: textMuted }]}>
                 {isFinished
                   ? t("bookDetail.finished")
-                  : book.format === "epub"
+                  : isReflowableFormat(book.format)
                     ? t("bookDetail.chaptersRead", { current: book.currentPosition + 1, total: book.spine.length })
                     : t("bookDetail.pagesRead", { current: book.currentPosition, total: book.pageCount ?? "?" })}
               </Text>
@@ -267,7 +278,7 @@ const styles = StyleSheet.create({
     fontWeight: Colors.fontWeightBold,
     color: "rgba(255,255,255,0.85)",
   },
-  titleBlock: { alignItems: "center", gap: 4 },
+  titleBlock: { width: "100%", alignItems: "center", gap: 4 },
   titleRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -279,20 +290,30 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   titleEditRow: {
-    flexDirection: "row",
+    width: "100%",
     alignItems: "center",
-    gap: Colors.gapXSmall,
+    gap: Colors.gapMedium,
   },
   titleInput: {
+    width: "100%",
     fontSize: Colors.fontSizeXXLarge,
     fontWeight: Colors.fontWeightBold,
     textAlign: "center",
-    borderBottomWidth: 1,
-    paddingVertical: 2,
-    minWidth: 160,
-    maxWidth: 220,
+    borderBottomWidth: 2,
+    paddingVertical: 4,
+  },
+  titleEditActions: {
+    flexDirection: "row",
+    gap: Colors.gapMedium,
   },
   titleEditButton: {
+    width: 40,
+    height: 40,
+    borderRadius: Colors.brRound,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pencilButton: {
     width: 28,
     height: 28,
     alignItems: "center",

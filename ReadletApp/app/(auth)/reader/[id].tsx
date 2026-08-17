@@ -1,7 +1,7 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { StatusBar } from "expo-status-bar";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,20 +11,38 @@ import { Text, View, useThemeColor } from "@/src/components/Themed";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import Colors from "@/src/constants/StyleVariables";
 import { useLibrary } from "@/src/context/LibraryProvider";
+import { isReflowableFormat } from "@/src/types/Book";
 import { goBack } from "@/src/utils/goBack";
 
 /**
  * Reads a book via a `WebView` — chosen over a native EPUB/PDF library so
- * the app stays on Expo Go (no dev-client rebuild). EPUB: renders the
- * current spine chapter's extracted XHTML file directly from disk, with
- * injected CSS for theme-matching colors/typography; "chapter" is the
- * unit of both navigation and progress (no in-chapter pagination). PDF:
- * the file's local `file://` URI is handed straight to the WebView, which
- * renders it with the platform's built-in PDF viewer (WKWebView on iOS,
- * Chromium on Android) — no per-page progress tracking, since that viewer
- * doesn't expose page-change events to JS (would need `react-native-pdf`
- * and a dev client for that — see CLAUDE.md).
+ * the app stays on Expo Go (no dev-client rebuild). EPUB/MOBI (both
+ * "reflowable", see `isReflowableFormat`): renders the current spine
+ * chapter's extracted XHTML/HTML file directly from disk, with injected
+ * CSS for theme-matching colors/typography; "chapter" is the unit of both
+ * navigation and progress (no in-chapter pagination). PDF: the file's
+ * local `file://` URI is handed straight to the WebView, which renders it
+ * with the platform's built-in PDF viewer (WKWebView on iOS, Chromium on
+ * Android) — no per-page progress tracking, since that viewer doesn't
+ * expose page-change events to JS (would need `react-native-pdf` and a dev
+ * client for that — see CLAUDE.md).
+ *
+ * EPUB/MOBI font size is adjustable in-place (no re-zoom needed): it's
+ * just the injected CSS's `font-size` re-pushed via the WebView ref's
+ * imperative `injectJavaScript` (not the `injectedJavaScript` prop, which
+ * only runs once on load) — no dev client involved. PDF has no such
+ * control since that's the platform's built-in viewer, not HTML we
+ * control; only pinch-zoom works there.
+ *
+ * Min/max are set wide enough (4px–200px) to not be a practical ceiling —
+ * literal "unbounded" isn't meaningful for a CSS font-size (0px is
+ * invisible, and some finite cap has to exist or the layout breaks).
  */
+const MIN_FONT_SIZE = 4;
+const MAX_FONT_SIZE = 200;
+const DEFAULT_FONT_SIZE = 18;
+const FONT_SIZE_STEP = 2;
+
 export default function Reader() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,6 +53,8 @@ export default function Reader() {
   const book = books.find((b) => b.id === id);
 
   const [loadError, setLoadError] = useState(false);
+  const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
+  const webviewRef = useRef<WebView>(null);
 
   const canvas = useThemeColor({}, "canvas");
   const text = useThemeColor({}, "text");
@@ -44,32 +64,56 @@ export default function Reader() {
   const primary = useThemeColor({}, "primary");
   const danger = useThemeColor({}, "danger");
 
-  const chapterIndex = book?.format === "epub" ? Math.min(book.currentPosition, book.spine.length - 1) : 0;
+  const chapterIndex = book && isReflowableFormat(book.format) ? Math.min(book.currentPosition, book.spine.length - 1) : 0;
   const chapterUri =
-    book?.format === "epub" && book.extractedDir ? `${book.extractedDir}/${book.spine[chapterIndex]}` : null;
+    book && isReflowableFormat(book.format) && book.extractedDir ? `${book.extractedDir}/${book.spine[chapterIndex]}` : null;
 
-  const injectedJavaScript = useMemo(() => {
-    const css = `
-      html, body {
-        background: ${canvas} !important;
-        color: ${text} !important;
-        font-size: 18px !important;
-        line-height: 1.6 !important;
-        padding: 20px !important;
-        box-sizing: border-box !important;
+  const buildReaderStyleScript = useCallback(
+    (size: number) => {
+      const css = `
+        html, body {
+          background: ${canvas} !important;
+          color: ${text} !important;
+          font-size: ${size}px !important;
+          line-height: 1.6 !important;
+          padding: 20px !important;
+          box-sizing: border-box !important;
+        }
+        img, svg { max-width: 100% !important; height: auto !important; }
+        a { color: ${primary} !important; }
+      `;
+      // Re-runnable: removes any style tag it previously injected before
+      // adding the new one, so calling this again (via injectJavaScript,
+      // on a font-size change) doesn't stack duplicate <style> tags.
+      return `
+        (function() {
+          var existing = document.getElementById('readlet-reader-style');
+          if (existing) { existing.remove(); }
+          var style = document.createElement('style');
+          style.id = 'readlet-reader-style';
+          style.textContent = ${JSON.stringify(css)};
+          document.head.appendChild(style);
+        })();
+        true;
+      `;
+    },
+    [canvas, text, primary],
+  );
+
+  const injectedJavaScript = useMemo(
+    () => buildReaderStyleScript(fontSize),
+    [buildReaderStyleScript, fontSize],
+  );
+
+  function handleFontSizeChange(direction: 1 | -1) {
+    setFontSize((prev) => {
+      const next = Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, prev + direction * FONT_SIZE_STEP));
+      if (next !== prev) {
+        webviewRef.current?.injectJavaScript(buildReaderStyleScript(next));
       }
-      img, svg { max-width: 100% !important; height: auto !important; }
-      a { color: ${primary} !important; }
-    `;
-    return `
-      (function() {
-        var style = document.createElement('style');
-        style.textContent = ${JSON.stringify(css)};
-        document.head.appendChild(style);
-      })();
-      true;
-    `;
-  }, [canvas, text, primary]);
+      return next;
+    });
+  }
 
   if (!book) {
     return (
@@ -80,14 +124,14 @@ export default function Reader() {
   }
 
   function goToChapter(nextIndex: number) {
-    if (!book || book.format !== "epub") return;
+    if (!book || !isReflowableFormat(book.format)) return;
     const clamped = Math.max(0, Math.min(nextIndex, book.spine.length - 1));
     if (clamped === book.currentPosition) return;
     setLoadError(false);
     void updateProgress(book.id, clamped, clamped / Math.max(book.spine.length - 1, 1));
   }
 
-  const sourceUri = book.format === "epub" ? chapterUri : book.fileUri;
+  const sourceUri = isReflowableFormat(book.format) ? chapterUri : book.fileUri;
 
   return (
     <View style={[styles.root, { backgroundColor: canvas }]}>
@@ -104,12 +148,43 @@ export default function Reader() {
         <Text style={styles.topBarTitle} numberOfLines={1}>
           {book.title}
         </Text>
-        <View style={styles.iconButton} />
+        {isReflowableFormat(book.format) ? (
+          <View style={[styles.fontSizeControls, { backgroundColor: surfaceHover }]}>
+            <Pressable
+              onPress={() => handleFontSizeChange(-1)}
+              disabled={fontSize <= MIN_FONT_SIZE}
+              hitSlop={6}
+              accessibilityLabel={t("reader.decreaseFontSize")}
+              style={({ pressed }) => [
+                styles.fontSizeButton,
+                { opacity: fontSize <= MIN_FONT_SIZE ? 0.3 : pressed ? 0.6 : 1 },
+              ]}
+            >
+              <Text style={styles.fontSizeButtonTextSmall}>A</Text>
+            </Pressable>
+            <View style={[styles.fontSizeDivider, { backgroundColor: border }]} />
+            <Pressable
+              onPress={() => handleFontSizeChange(1)}
+              disabled={fontSize >= MAX_FONT_SIZE}
+              hitSlop={6}
+              accessibilityLabel={t("reader.increaseFontSize")}
+              style={({ pressed }) => [
+                styles.fontSizeButton,
+                { opacity: fontSize >= MAX_FONT_SIZE ? 0.3 : pressed ? 0.6 : 1 },
+              ]}
+            >
+              <Text style={styles.fontSizeButtonTextLarge}>A</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={styles.iconButton} />
+        )}
       </View>
 
       {sourceUri && !loadError ? (
         <WebView
           key={sourceUri}
+          ref={webviewRef}
           source={{ uri: sourceUri }}
           style={styles.webview}
           originWhitelist={["*"]}
@@ -117,7 +192,7 @@ export default function Reader() {
           allowFileAccessFromFileURLs
           allowUniversalAccessFromFileURLs
           allowingReadAccessToURL={book.extractedDir ?? undefined}
-          injectedJavaScript={book.format === "epub" ? injectedJavaScript : undefined}
+          injectedJavaScript={isReflowableFormat(book.format) ? injectedJavaScript : undefined}
           onError={() => setLoadError(true)}
         />
       ) : (
@@ -127,7 +202,7 @@ export default function Reader() {
         </View>
       )}
 
-      {book.format === "epub" && (
+      {isReflowableFormat(book.format) && (
         <View
           style={[
             styles.bottomBar,
@@ -196,6 +271,31 @@ const styles = StyleSheet.create({
     fontSize: Colors.fontSizeSmall,
     fontWeight: Colors.fontWeightSemibold,
     marginHorizontal: Colors.gapSmall,
+  },
+  fontSizeControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 36,
+    borderRadius: Colors.brRound,
+    overflow: "hidden",
+  },
+  fontSizeButton: {
+    width: 32,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  fontSizeButtonTextSmall: {
+    fontSize: Colors.fontSizeXSmall,
+    fontWeight: Colors.fontWeightSemibold,
+  },
+  fontSizeButtonTextLarge: {
+    fontSize: Colors.fontSizeMedium,
+    fontWeight: Colors.fontWeightSemibold,
+  },
+  fontSizeDivider: {
+    width: StyleSheet.hairlineWidth,
+    height: 16,
   },
   bottomBar: {
     paddingHorizontal: Colors.gapLarge,

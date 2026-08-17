@@ -23,7 +23,7 @@ function rowToBook(row: BookRow): Book {
     id: row.id,
     title: row.title,
     author: row.author,
-    format: row.format === "pdf" ? "pdf" : "epub",
+    format: row.format === "pdf" ? "pdf" : row.format === "mobi" ? "mobi" : "epub",
     fileUri: row.fileUri,
     extractedDir: row.extractedDir,
     spine: JSON.parse(row.spine) as string[],

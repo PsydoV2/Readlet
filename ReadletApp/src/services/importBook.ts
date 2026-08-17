@@ -1,13 +1,27 @@
 import * as DocumentPicker from "expo-document-picker";
 import { Directory, File, Paths } from "expo-file-system";
 
+import i18next from "@/src/i18n";
 import { insertBook } from "@/src/db/booksRepository";
 import { extractAndParseEpub } from "@/src/services/epubService";
+import { extractAndParseMobi } from "@/src/services/mobiService";
 import { estimatePdfPageCount } from "@/src/services/pdfService";
 import type { Book, BookFormat } from "@/src/types/Book";
 import { accentColorForId } from "@/src/utils/accentColor";
 
-const PICKER_MIME_TYPES = ["application/epub+zip", "application/pdf"];
+// MOBI/AZW/AZW3 have no single standardized MIME type the way EPUB/PDF do —
+// "application/x-mobipocket-ebook" and "application/vnd.amazon.ebook" are
+// the two most commonly reported, but neither is universally recognized by
+// every OS file picker, and AZW3/KF8 in particular often shows up as
+// generic "application/octet-stream" or gets filtered out of the picker's
+// list entirely depending on platform. `formatFromAsset`'s extension regex
+// below is the real fallback that makes this work regardless.
+const PICKER_MIME_TYPES = [
+  "application/epub+zip",
+  "application/pdf",
+  "application/x-mobipocket-ebook",
+  "application/vnd.amazon.ebook",
+];
 
 function generateId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -16,6 +30,13 @@ function generateId(): string {
 function formatFromAsset(name: string, mimeType?: string): BookFormat | null {
   if (mimeType === "application/epub+zip" || /\.epub$/i.test(name)) return "epub";
   if (mimeType === "application/pdf" || /\.pdf$/i.test(name)) return "pdf";
+  if (
+    mimeType === "application/x-mobipocket-ebook" ||
+    mimeType === "application/vnd.amazon.ebook" ||
+    /\.(mobi|azw3?|azw)$/i.test(name)
+  ) {
+    return "mobi";
+  }
   return null;
 }
 
@@ -49,7 +70,7 @@ export async function importBookFromPicker(): Promise<Book | null> {
 
   const format = formatFromAsset(asset.name, asset.mimeType);
   if (!format) {
-    throw new Error("Nicht unterstütztes Dateiformat — nur EPUB und PDF werden unterstützt.");
+    throw new Error(i18next.t("import.errors.unsupportedFormat"));
   }
 
   const id = generateId();
@@ -62,15 +83,15 @@ export async function importBookFromPicker(): Promise<Book | null> {
   destination.create({ intermediates: true, overwrite: true });
   destination.write(bytes);
 
-  let title = asset.name.replace(/\.(epub|pdf)$/i, "");
+  let title = asset.name.replace(/\.(epub|pdf|mobi|azw3?|azw)$/i, "");
   let author = "Unbekannt";
   let spine: string[] = [];
   let extractedDir: string | null = null;
   let coverUri: string | null = null;
   let pageCount: number | null = null;
 
-  if (format === "epub") {
-    const parsed = await extractAndParseEpub(destination, id);
+  if (format === "epub" || format === "mobi") {
+    const parsed = format === "epub" ? await extractAndParseEpub(destination, id) : await extractAndParseMobi(destination, id);
     title = parsed.title;
     author = parsed.author;
     spine = parsed.spine;
