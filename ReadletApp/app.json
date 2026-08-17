@@ -21,7 +21,8 @@
       "permissions": [
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT"
-      ]
+      ],
+      "package": "com.psydo.readlet"
     },
     "plugins": [
       "expo-router",
