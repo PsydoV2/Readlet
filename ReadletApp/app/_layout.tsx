@@ -5,11 +5,12 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { DarkTheme, DefaultTheme, Slot, ThemeProvider } from "expo-router";
 import Colors from "@/src/constants/StyleVariables";
+import FakeSplashScreen from "@/src/components/FakeSplashScreen";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import { AppLockProvider, useAppLock } from "@/src/context/AppLockProvider";
 import { LibraryProvider } from "@/src/context/LibraryProvider";
@@ -86,6 +87,7 @@ function ThemedApp() {
   const [fontsLoaded, fontError] = useFonts({ ...FontAwesome.font });
   const scheme = useColorScheme();
   const { isHydrated } = useAppLock();
+  const [showFakeSplash, setShowFakeSplash] = useState(true);
 
   const ready = (fontsLoaded || Boolean(fontError)) && isHydrated;
 
@@ -113,6 +115,15 @@ function ThemedApp() {
         instead of expo-router's default page-title header / bottom nav.
       */}
       <Slot />
+      {/*
+        Bridges the native splash (which just hid) into the library with a
+        rounded-corner logo and a fade — see FakeSplashScreen's own doc
+        comment for why this is a separate, JS-rendered layer instead of
+        styling the native one.
+      */}
+      {showFakeSplash && (
+        <FakeSplashScreen onFinish={() => setShowFakeSplash(false)} />
+      )}
     </ThemeProvider>
   );
 }
