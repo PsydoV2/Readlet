@@ -6,6 +6,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { DarkTheme, DefaultTheme, Slot, ThemeProvider } from "expo-router";
 import Colors from "@/src/constants/StyleVariables";
@@ -50,19 +51,24 @@ const navigationDarkTheme = {
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <ThemePreferenceProvider>
-        {/* Wraps everything so both app/lock.tsx and (auth)/_layout.tsx's
-            redirect can read it — see src/context/AppLockProvider.tsx. */}
-        <AppLockProvider>
-          <LibraryProvider>
-            <ToastProvider>
-              <ThemedApp />
-            </ToastProvider>
-          </LibraryProvider>
-        </AppLockProvider>
-      </ThemePreferenceProvider>
-    </SafeAreaProvider>
+    // Required by react-native-gesture-handler (used for the reader's
+    // swipe-to-change-chapter gesture) to work on Android — must wrap
+    // everything, at the outermost level.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemePreferenceProvider>
+          {/* Wraps everything so both app/lock.tsx and (auth)/_layout.tsx's
+              redirect can read it — see src/context/AppLockProvider.tsx. */}
+          <AppLockProvider>
+            <LibraryProvider>
+              <ToastProvider>
+                <ThemedApp />
+              </ToastProvider>
+            </LibraryProvider>
+          </AppLockProvider>
+        </ThemePreferenceProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

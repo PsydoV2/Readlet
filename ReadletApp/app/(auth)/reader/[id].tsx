@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
@@ -37,11 +38,20 @@ import { goBack } from "@/src/utils/goBack";
  * Min/max are set wide enough (4px–200px) to not be a practical ceiling —
  * literal "unbounded" isn't meaningful for a CSS font-size (0px is
  * invisible, and some finite cap has to exist or the layout breaks).
+ *
+ * EPUB/MOBI chapters can also be swiped, not just tapped via the bottom
+ * bar's buttons: a `react-native-gesture-handler` `Gesture.Pan()` sits over
+ * the `WebView` (only for reflowable formats — PDF keeps its native
+ * viewer's own touch handling untouched). `activeOffsetX`/`failOffsetY`
+ * make it recognize a swipe only once the drag is clearly horizontal;
+ * anything more vertical fails the gesture immediately and falls through
+ * to the `WebView`, so scrolling a long chapter still works normally.
  */
 const MIN_FONT_SIZE = 4;
 const MAX_FONT_SIZE = 200;
 const DEFAULT_FONT_SIZE = 18;
 const FONT_SIZE_STEP = 2;
+const SWIPE_THRESHOLD = 60;
 
 export default function Reader() {
   const { t } = useTranslation();
@@ -131,7 +141,22 @@ export default function Reader() {
     void updateProgress(book.id, clamped, clamped / Math.max(book.spine.length - 1, 1));
   }
 
-  const sourceUri = isReflowableFormat(book.format) ? chapterUri : book.fileUri;
+  // Only decides who "wins" the touch (see doc comment above); the actual
+  // chapter change still goes through goToChapter's own clamping.
+  const swipeGesture = Gesture.Pan()
+    .runOnJS(true)
+    .activeOffsetX([-20, 20])
+    .failOffsetY([-20, 20])
+    .onEnd((event) => {
+      if (event.translationX <= -SWIPE_THRESHOLD) {
+        goToChapter(chapterIndex + 1);
+      } else if (event.translationX >= SWIPE_THRESHOLD) {
+        goToChapter(chapterIndex - 1);
+      }
+    });
+
+  const isReflowable = isReflowableFormat(book.format);
+  const sourceUri = isReflowable ? chapterUri : book.fileUri;
 
   return (
     <View style={[styles.root, { backgroundColor: canvas }]}>
@@ -148,7 +173,7 @@ export default function Reader() {
         <Text style={styles.topBarTitle} numberOfLines={1}>
           {book.title}
         </Text>
-        {isReflowableFormat(book.format) ? (
+        {isReflowable ? (
           <View style={[styles.fontSizeControls, { backgroundColor: surfaceHover }]}>
             <Pressable
               onPress={() => handleFontSizeChange(-1)}
@@ -182,19 +207,24 @@ export default function Reader() {
       </View>
 
       {sourceUri && !loadError ? (
-        <WebView
-          key={sourceUri}
-          ref={webviewRef}
-          source={{ uri: sourceUri }}
-          style={styles.webview}
-          originWhitelist={["*"]}
-          allowFileAccess
-          allowFileAccessFromFileURLs
-          allowUniversalAccessFromFileURLs
-          allowingReadAccessToURL={book.extractedDir ?? undefined}
-          injectedJavaScript={isReflowableFormat(book.format) ? injectedJavaScript : undefined}
-          onError={() => setLoadError(true)}
-        />
+        (() => {
+          const webView = (
+            <WebView
+              key={sourceUri}
+              ref={webviewRef}
+              source={{ uri: sourceUri }}
+              style={styles.webview}
+              originWhitelist={["*"]}
+              allowFileAccess
+              allowFileAccessFromFileURLs
+              allowUniversalAccessFromFileURLs
+              allowingReadAccessToURL={book.extractedDir ?? undefined}
+              injectedJavaScript={isReflowable ? injectedJavaScript : undefined}
+              onError={() => setLoadError(true)}
+            />
+          );
+          return isReflowable ? <GestureDetector gesture={swipeGesture}>{webView}</GestureDetector> : webView;
+        })()
       ) : (
         <View style={styles.errorState}>
           <FontAwesome name="exclamation-circle" size={24} color={danger} />
@@ -202,7 +232,7 @@ export default function Reader() {
         </View>
       )}
 
-      {isReflowableFormat(book.format) && (
+      {isReflowable && (
         <View
           style={[
             styles.bottomBar,

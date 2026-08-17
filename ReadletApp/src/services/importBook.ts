@@ -41,7 +41,7 @@ function formatFromAsset(name: string, mimeType?: string): BookFormat | null {
 }
 
 /**
- * Opens the native file picker, copies the chosen EPUB/PDF into app
+ * Opens the native file picker, copies the chosen EPUB/MOBI/PDF into app
  * storage (`Paths.document/books/`), extracts/parses it, and inserts a row
  * into the library DB. Returns `null` if the user canceled the picker —
  * throws (with a message meant to be shown to the user) on an unsupported
@@ -122,7 +122,7 @@ export async function importBookFromPicker(): Promise<Book | null> {
   return book;
 }
 
-/** Removes a book's copied source file and (for EPUBs) its extracted folder. Best-effort — swallows errors so a stale/missing file never blocks deleting the library row. */
+/** Removes a book's copied source file and (for EPUB/MOBI) its extracted folder. Best-effort — swallows errors so a stale/missing file never blocks deleting the library row. */
 export async function deleteBookFiles(book: Book): Promise<void> {
   try {
     new File(book.fileUri).delete();
