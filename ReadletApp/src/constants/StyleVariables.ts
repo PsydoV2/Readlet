@@ -1,7 +1,7 @@
 /**
  * Readlet design system: Notion's neutral, content-first minimalism crossed
- * with Airbnb's confident polish (one warm accent, rounded corners, sparing
- * elevation).
+ * with Airbnb's confident polish (one confident accent — Notion's own blue
+ * — rounded corners, sparing elevation).
  *
  * Backgrounds are pure white / pure black — true neutral gray, zero hue —
  * the same rule Notion and Airbnb both follow: a tinted "off-white" or
@@ -30,10 +30,10 @@ const StyleVariables = {
 
     overlay: "rgba(0, 0, 0, 0.5)", // modal/sheet scrim
 
-    // Brand accent — warm terracotta. The one deliberate spot of color;
-    // never used for a background. Primary actions, active states, links.
-    primary: "#BF5B2E",
-    primarySoft: "#FBE7DC", // tinted background for badges/active nav using primary
+    // Brand accent — Notion blue. The one deliberate spot of color; never
+    // used for a background. Primary actions, active states, links.
+    primary: "#2383E2",
+    primarySoft: "#E3F0FC", // tinted background for badges/active nav using primary
     onPrimary: "#FFFFFF", // text/icon color on top of a solid primary surface
 
     secondary: "#B8862E", // warm gold — secondary accents, ratings, streaks
@@ -65,9 +65,9 @@ const StyleVariables = {
 
     overlay: "rgba(0, 0, 0, 0.7)",
 
-    primary: "#E08650", // lighter terracotta so it pops on the black canvas
-    primarySoft: "#3A2A20",
-    onPrimary: "#1C1108", // near-black text/icons on the lighter primary
+    primary: "#5B9FE3", // lighter, brighter blue so it pops on the black canvas
+    primarySoft: "#1B2C40",
+    onPrimary: "#0E2035", // near-black text/icons on the lighter primary
 
     secondary: "#D9A94E",
 

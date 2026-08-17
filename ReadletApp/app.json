@@ -33,7 +33,14 @@
           }
         }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Readlet nutzt Face ID, um die App-Sperre zu entsperren."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,6 +1,7 @@
 import Colors from "@/src/constants/StyleVariables";
+import { useColorScheme } from "@/src/components/useColorScheme";
 import { useEffect, useState } from "react";
-import { Animated, StyleSheet, Text, useColorScheme } from "react-native";
+import { Animated, StyleSheet, Text } from "react-native";
 
 type ToastProps = {
   message: string;

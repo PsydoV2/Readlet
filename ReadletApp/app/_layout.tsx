@@ -5,9 +5,11 @@ import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useColorScheme } from "react-native";
 import { DarkTheme, DefaultTheme, Slot, ThemeProvider } from "expo-router";
 import Colors from "@/src/constants/StyleVariables";
+import { useColorScheme } from "@/src/components/useColorScheme";
+import { AppLockProvider, useAppLock } from "@/src/context/AppLockProvider";
+import { ThemePreferenceProvider } from "@/src/context/ThemePreferenceProvider";
 import { ToastProvider } from "@/src/context/ToastProvider";
 
 export { ErrorBoundary } from "expo-router";
@@ -44,37 +46,62 @@ const navigationDarkTheme = {
 };
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    ...FontAwesome.font,
-  });
+  return (
+    <SafeAreaProvider>
+      <ThemePreferenceProvider>
+        {/* Wraps everything so both app/lock.tsx and (auth)/_layout.tsx's
+            redirect can read it — see src/context/AppLockProvider.tsx. */}
+        <AppLockProvider>
+          <ToastProvider>
+            <ThemedApp />
+          </ToastProvider>
+        </AppLockProvider>
+      </ThemePreferenceProvider>
+    </SafeAreaProvider>
+  );
+}
+
+/**
+ * Split out so it can read the resolved (user-overridable) scheme from
+ * `ThemePreferenceProvider` and the hydrated lock state from
+ * `AppLockProvider`. Rendering is held back (native splash screen stays up)
+ * until both fonts and the persisted lock state are ready, so there's
+ * never a flash of unlocked content or unstyled icons. Which of `/lock` vs
+ * `(auth)/...` actually renders is decided by `(auth)/_layout.tsx`'s
+ * redirect, not here — this just provides the themed shell around
+ * whichever route is active.
+ */
+function ThemedApp() {
+  const [fontsLoaded, fontError] = useFonts({ ...FontAwesome.font });
   const scheme = useColorScheme();
+  const { isHydrated } = useAppLock();
+
+  const ready = (fontsLoaded || Boolean(fontError)) && isHydrated;
 
   useEffect(() => {
-    if (error) {
-      console.error(error);
-      SplashScreen.hideAsync().catch(console.error);
-    }
-  }, [error]);
+    if (fontError) console.error(fontError);
+  }, [fontError]);
 
   useEffect(() => {
-    if (!loaded) return;
+    if (!ready) return;
     const bg = scheme === "dark" ? Colors.dark.canvas : Colors.light.canvas;
     void (async () => {
       await SystemUI.setBackgroundColorAsync(bg).catch(console.error);
       await SplashScreen.hideAsync().catch(console.error);
     })();
-  }, [loaded, scheme]);
+  }, [ready, scheme]);
 
-  if (!loaded && !error) return null;
+  if (!ready) return null;
 
   return (
-    <SafeAreaProvider>
-      <ToastProvider>
-        <ThemeProvider value={scheme === "dark" ? navigationDarkTheme : navigationLightTheme}>
-          <StatusBar style="auto" />
-          <Slot />
-        </ThemeProvider>
-      </ToastProvider>
-    </SafeAreaProvider>
+    <ThemeProvider value={scheme === "dark" ? navigationDarkTheme : navigationLightTheme}>
+      <StatusBar style={scheme === "dark" ? "light" : "dark"} />
+      {/*
+        No native header, no tab bar anywhere below: every screen owns its
+        full-bleed layout and draws its own chrome (see ScreenHeader)
+        instead of expo-router's default page-title header / bottom nav.
+      */}
+      <Slot />
+    </ThemeProvider>
   );
 }
