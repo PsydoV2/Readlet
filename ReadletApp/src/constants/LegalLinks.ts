@@ -4,8 +4,8 @@
  * scheme; swap them for the real, hosted pages before shipping.
  */
 const LegalLinks = {
-  privacyUrl: "https://readlet.app/privacy",
-  imprintUrl: "https://readlet.app/imprint",
+  privacyUrl: "https://readlet.sfalter.de/datenschutz/",
+  imprintUrl: "https://readlet.sfalter.de/impressum/",
 } as const;
 
 export default LegalLinks;
