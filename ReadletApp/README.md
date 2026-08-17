@@ -1,153 +1,69 @@
-# 🚀 Expo Auth Route Template
+# 📖 Readlet
 
-A modern, lightweight **Expo starter template** featuring **authentication**, **file-based routing**, and **fully themed components** — built with [`expo-router`](https://expo.github.io/router/) v7 and TypeScript.
+A clean, modern e-reader for iOS and Android. No account, no internet required, no ads — everything lives on your device.
 
-> ⚡ Ideal for kickstarting new React Native projects with clean structure, persistent auth, and ready-to-scale design patterns.
+- Local-first: books never leave your phone
+- Supports EPUB and PDF import
+- Distraction-free reading, styled like it's 2025
 
-📦 GitHub: [PsydoV2/ExpoAuthRouteTemplate](https://github.com/PsydoV2/ExpoAuthRouteTemplate)
+Built with [`expo-router`](https://docs.expo.dev/router/introduction/) and TypeScript.
 
----
-
-## ✨ Features
-
-- 🔐 **Authentication Context** — centralized session state via React Context + AsyncStorage
-- 💾 **Persistent Login** — token survives app restarts via `useStorageState`
-- 🧭 **File-Based Routing** — protected `(auth)` group with automatic redirects
-- 🎨 **Dynamic Theming** — automatic dark/light mode with `Themed` wrapper components
-- 📳 **Haptic Feedback** — `expo-haptics` integration (Impact + Notification types)
-- 📡 **Device Info** — `expo-constants` + `Platform` data out of the box
-- 🔗 **Deep Linking** — `expo-linking` for external URLs and in-app links
-- 💻 **Web-Responsive Layout** — `maxWidth` constraints so it doesn't look broken on desktop
-- 🧱 **Custom UI Components** — `Text`, `View`, `Card`, `ScreenContent` in `/components/Themed.tsx`
-- 🍞 **Toast Notifications** — animated overlay with success / error / info variants
-- 🌐 **API Hooks** — `useApi` (authenticated) and `callAuthentication` (public) fetch wrappers
-- 👤 **User Context** — `UserProvider` with AsyncStorage persistence and partial update support
-- 📱 **New Architecture** — React Native 0.86 with mandatory New Arch (no legacy bridge)
-- 💻 **TypeScript Strict Mode** — `noUncheckedIndexedAccess`, `noImplicitOverride`, path aliases
+See [`CLAUDE.md`](./CLAUDE.md) for the full product vision and architecture notes.
 
 ---
 
 ## 🧠 Project Structure
 
 ```
-ExpoAuthRouteTemplate/
+ReadletApp/
 ├── app/
-│   ├── (auth)/                   # Protected area — redirects to AuthScreen if not logged in
-│   │   ├── (tabs)/
-│   │   │   ├── _layout.tsx       # Tab bar configuration
-│   │   │   ├── index.tsx         # Home tab — expo-haptics demo
-│   │   │   └── two.tsx           # Second tab — expo-constants + expo-linking demo
-│   │   ├── _layout.tsx           # Auth guard (Stack)
-│   │   └── modal.tsx             # Info modal with app/device info
-│   ├── _layout.tsx               # Root layout — providers + splash screen + system UI
-│   ├── AuthScreen.tsx            # Login screen — replace signIn() with your real auth
-│   ├── +html.tsx                 # Web: HTML shell (viewport, charset)
-│   └── +not-found.tsx            # 404 fallback
+│   ├── (tabs)/
+│   │   ├── _layout.tsx       # Tab bar configuration
+│   │   └── index.tsx         # Library — home screen
+│   ├── _layout.tsx           # Root layout — providers + splash screen + system UI
+│   └── +not-found.tsx        # 404 fallback
 │
 ├── src/
-│   ├── context/
-│   │   ├── AuthContext.tsx       # Session state: isAuthenticated, signIn, signOut
-│   │   ├── UserProvider.tsx      # User DTO: setUser, updateUser, clearUser
-│   │   └── ToastProvider.tsx     # showToast(message, type, duration)
-│   ├── hooks/
-│   │   ├── useStorageState.ts    # Generic AsyncStorage-backed useState
-│   │   └── useAPI.ts             # callApi (+ auth header) / callAuthentication (public)
-│   └── types/
-│       └── DTOUser.ts            # { id, username, email }
+│   └── context/
+│       └── ToastProvider.tsx # showToast(message, type, duration)
 │
 ├── components/
-│   ├── Themed.tsx                # Text, View, Card, ScreenContent (web max-width aware)
-│   └── Toast.tsx                 # Animated slide-in toast
+│   ├── Themed.tsx            # Text, View, Card, ScreenContent
+│   ├── Toast.tsx             # Animated slide-in toast
+│   └── useColorScheme.ts
 │
 ├── constants/
-│   ├── StyleVariables.ts         # Full color palette — light + dark
-│   └── APIRoutes.ts              # API_URL, read from EXPO_PUBLIC_API_URL
+│   └── StyleVariables.ts     # Color palette — light + dark
 │
-├── app.json                      # plugins (incl. splash config), typedRoutes
-├── tsconfig.json                 # strict, paths (@/), moduleResolution: Bundler
-└── babel.config.js               # module-resolver for @/ alias
+├── app.json                  # plugins (incl. splash config), typedRoutes
+├── tsconfig.json             # strict, paths (@/), moduleResolution: Bundler
+└── babel.config.js           # module-resolver for @/ alias
 ```
 
 ---
 
 ## 🧑‍💻 Getting Started
 
-### 1. Clone
-
-```bash
-git clone https://github.com/PsydoV2/ExpoAuthRouteTemplate.git
-cd ExpoAuthRouteTemplate
-```
-
-### 2. Install dependencies
-
 ```bash
 npm install
-```
-
-### 3. Configure your environment
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and set `EXPO_PUBLIC_API_URL` to your backend. See [`.env.example`](./.env.example).
-
-### 4. Rename the app for your project
-
-This template ships with generic placeholder names — replace them before you go further:
-
-- `app.json`: `expo.name`, `expo.slug`, `expo.scheme`
-- `package.json`: `name`
-- `app/_layout.tsx` / `app/AuthScreen.tsx`: the `"MyApp"` display name
-- App icons and splash image in `assets/images/` (referenced from `app.json`)
-
-### 5. Run the app
-
-```bash
 npx expo start
 ```
 
-> 💡 Press `i` for iOS simulator, `a` for Android emulator, `w` for browser.
-
----
-
-## 🔐 Adding Your Auth Logic
-
-Open `app/AuthScreen.tsx` and replace the demo `signIn("demo-token")` call:
-
-```ts
-const handleLogin = async () => {
-  const data = await callAuthentication<{ token: string }>(API_ROUTE_LOGIN, "POST", {
-    email,
-    password,
-  });
-  if (!data?.token) return;
-  await signIn(data.token);
-  setUser({ id: data.id, username: data.username, email: data.email });
-};
-```
-
-Configure your API URL via `EXPO_PUBLIC_API_URL` in `.env` (see [`constants/APIRoutes.ts`](./constants/APIRoutes.ts)).
+Press `i` for the iOS simulator or `a` for the Android emulator.
 
 ---
 
 ## 🧱 Tech Stack
 
-| Layer         | Technology                               |
-| ------------- | ---------------------------------------- |
-| Framework     | **Expo SDK 57**                          |
-| Navigation    | **expo-router v7** (`~57.0.x`)           |
-| Runtime       | **React 19.2 · React Native 0.86**       |
-| Architecture  | **New Architecture** (mandatory)         |
-| Language      | **TypeScript 6.0** (strict)              |
-| UI / Theme    | **React Native + Themed Components**     |
-| State / Auth  | **React Context + AsyncStorage**         |
-| Haptics       | **expo-haptics**                         |
-| Device Info   | **expo-constants**                       |
-| Linking       | **expo-linking**                         |
-| Build         | **EAS Build**, OTA-update ready          |
-| Testing       | **Jest + jest-expo**                     |
+| Layer        | Technology                         |
+| ------------ | ----------------------------------- |
+| Framework    | **Expo SDK 57**                     |
+| Navigation   | **expo-router v7** (`~57.0.x`)      |
+| Runtime      | **React 19.2 · React Native 0.86**  |
+| Architecture | **New Architecture** (mandatory)    |
+| Language     | **TypeScript 6.0** (strict)         |
+| Platforms    | **iOS · Android** (no web target)   |
+| Testing      | **Jest + jest-expo**                |
 
 ---
 
@@ -155,51 +71,42 @@ Configure your API URL via `EXPO_PUBLIC_API_URL` in `.env` (see [`constants/APIR
 
 Colors live in `constants/StyleVariables.ts`. Both `light` and `dark` palettes share the same keys:
 
-| Key           | Usage                          |
-| ------------- | ------------------------------ |
-| `bgDark`      | Screen background, tab bar     |
-| `bgLight`     | Cards, inputs                  |
-| `text`        | Primary text                   |
-| `textMuted`   | Labels, hints                  |
-| `border`      | Card borders, dividers         |
-| `primary`     | Buttons, active states, links  |
-| `danger`      | Destructive actions, errors    |
-| `success`     | Confirmations, positive states |
+| Key         | Usage                          |
+| ----------- | ------------------------------ |
+| `bgDark`    | Screen background, tab bar     |
+| `bgLight`   | Cards, inputs                  |
+| `text`      | Primary text                   |
+| `textMuted` | Labels, hints                  |
+| `border`    | Card borders, dividers         |
+| `primary`   | Buttons, active states, links  |
+| `danger`    | Destructive actions, errors    |
+| `success`   | Confirmations, positive states |
 
 Use the `Themed` components for automatic light/dark switching:
 
 ```tsx
 import { Text, View, Card, ScreenContent } from "@/components/Themed";
 
-// ScreenContent automatically constrains to maxWidth 600 on web
 <ScreenContent>
   <Card>
     <Text>Hello</Text>
   </Card>
-</ScreenContent>
+</ScreenContent>;
 ```
 
 ---
 
 ## 🧭 Roadmap
 
-- [x] Toast / snackbar system
-- [x] API auth hook (`useApi`)
-- [x] User context with AsyncStorage
-- [x] expo-haptics integration
-- [x] Web-responsive layout
-- [ ] Signup screen example
-- [ ] Form validation example
-- [ ] i18n / multi-language example
+- [ ] EPUB/PDF import (`expo-document-picker`, `expo-file-system`)
+- [ ] Local library metadata + reading positions (`expo-sqlite`)
+- [ ] EPUB reader (`react-native-epub-view` / `epubjs`)
+- [ ] PDF reader (`react-native-pdf`)
+- [ ] Reader settings: font size, font family, theme, line height, margins
+- [ ] Book detail screen: cover, metadata, reading stats, delete
 
 ---
 
 ## 🪪 License
 
-MIT — see [`LICENSE`](./LICENSE) for details.
-
----
-
-### ❤️ Credits
-
-Created with ☕ and Expo by [PsydoV2](https://github.com/PsydoV2)
+MIT — see [`LICENCE`](./LICENCE) for details.
