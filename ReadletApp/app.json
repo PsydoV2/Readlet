@@ -40,7 +40,9 @@
         {
           "faceIDPermission": "Readlet nutzt Face ID, um die App-Sperre zu entsperren."
         }
-      ]
+      ],
+      "expo-sqlite",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

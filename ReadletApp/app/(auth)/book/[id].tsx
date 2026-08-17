@@ -1,40 +1,43 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Pressable, ScrollView, StyleSheet } from "react-native";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Image, Pressable, ScrollView, StyleSheet, TextInput } from "react-native";
 
 import ScreenHeader from "@/src/components/ScreenHeader";
 import { Text, View, useThemeColor } from "@/src/components/Themed";
 import Colors from "@/src/constants/StyleVariables";
-import { getBookById } from "@/src/data/mockBooks";
+import { useLibrary } from "@/src/context/LibraryProvider";
 import { useToast } from "@/src/context/ToastProvider";
 import { goBack } from "@/src/utils/goBack";
 
-const dateFormatter = new Intl.DateTimeFormat("de-DE", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
-
 export default function BookDetail() {
+  const { t, i18n } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { showToast } = useToast();
-  const book = getBookById(id);
+  const { books, removeBook, renameBook } = useLibrary();
+  const book = books.find((b) => b.id === id);
 
   const primary = useThemeColor({}, "primary");
   const onPrimary = useThemeColor({}, "onPrimary");
+  const text = useThemeColor({}, "text");
   const textMuted = useThemeColor({}, "textMuted");
   const border = useThemeColor({}, "border");
   const surfaceHover = useThemeColor({}, "surfaceHover");
   const borderMuted = useThemeColor({}, "borderMuted");
   const danger = useThemeColor({}, "danger");
 
+  const [coverFailed, setCoverFailed] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
+
   if (!book) {
     return (
       <View style={styles.root}>
         <ScreenHeader onBack={() => goBack(router, "/")} />
         <View style={styles.notFound}>
-          <Text style={styles.notFoundText}>Buch nicht gefunden.</Text>
+          <Text style={styles.notFoundText}>{t("bookDetail.notFound")}</Text>
         </View>
       </View>
     );
@@ -42,37 +45,128 @@ export default function BookDetail() {
 
   const isUnread = book.progress <= 0;
   const isFinished = book.progress >= 1;
-  const ctaLabel = isFinished ? "Erneut lesen" : isUnread ? "Lesen starten" : "Weiterlesen";
+  const ctaLabel = isFinished
+    ? t("bookDetail.ctaRestart")
+    : isUnread
+      ? t("bookDetail.ctaStart")
+      : t("bookDetail.ctaContinue");
+
+  const chapterOrPageCount = book.format === "epub" ? book.spine.length : book.pageCount;
+  const dateFormatter = new Intl.DateTimeFormat(i18n.language === "en" ? "en-US" : "de-DE", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  async function handleRemove() {
+    if (!book) return;
+    await removeBook(book.id);
+    showToast(t("bookDetail.removedToast", { title: book.title }), "success");
+    goBack(router, "/");
+  }
+
+  function handleStartRename() {
+    if (!book) return;
+    setTitleDraft(book.title);
+    setIsEditingTitle(true);
+  }
+
+  function handleCancelRename() {
+    setIsEditingTitle(false);
+  }
+
+  async function handleConfirmRename() {
+    if (!book) return;
+    const trimmed = titleDraft.trim();
+    if (!trimmed) {
+      showToast(t("bookDetail.renameEmptyError"), "error");
+      return;
+    }
+    setIsEditingTitle(false);
+    if (trimmed === book.title) return;
+    await renameBook(book.id, trimmed);
+    showToast(t("bookDetail.renameSuccessToast"), "success");
+  }
+
+  const showCoverImage = book.coverUri && !coverFailed;
 
   return (
     <View style={styles.root}>
       <ScreenHeader onBack={() => goBack(router, "/")} />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={[styles.cover, { backgroundColor: book.accent }, Colors.shadowLg]}>
-          <Text style={styles.coverInitial}>{book.title.charAt(0)}</Text>
+        <View style={[styles.cover, !showCoverImage && { backgroundColor: book.accent }, Colors.shadowLg]}>
+          {showCoverImage ? (
+            <Image
+              source={{ uri: book.coverUri ?? undefined }}
+              style={styles.coverImage}
+              onError={() => setCoverFailed(true)}
+            />
+          ) : (
+            <Text style={styles.coverInitial}>{book.title.charAt(0)}</Text>
+          )}
         </View>
 
         <View style={styles.titleBlock}>
-          <Text style={styles.title}>{book.title}</Text>
+          {isEditingTitle ? (
+            <View style={styles.titleEditRow}>
+              <TextInput
+                value={titleDraft}
+                onChangeText={setTitleDraft}
+                style={[styles.titleInput, { color: text, borderBottomColor: border }]}
+                autoFocus
+                selectTextOnFocus
+                maxLength={200}
+                returnKeyType="done"
+                onSubmitEditing={handleConfirmRename}
+              />
+              <Pressable onPress={handleConfirmRename} hitSlop={8} style={styles.titleEditButton}>
+                <FontAwesome name="check" size={16} color={primary} />
+              </Pressable>
+              <Pressable onPress={handleCancelRename} hitSlop={8} style={styles.titleEditButton}>
+                <FontAwesome name="close" size={16} color={textMuted} />
+              </Pressable>
+            </View>
+          ) : (
+            <View style={styles.titleRow}>
+              <Text style={styles.title} numberOfLines={2}>
+                {book.title}
+              </Text>
+              <Pressable onPress={handleStartRename} hitSlop={8} style={styles.titleEditButton}>
+                <FontAwesome name="pencil" size={14} color={textMuted} />
+              </Pressable>
+            </View>
+          )}
           <Text style={[styles.author, { color: textMuted }]}>{book.author}</Text>
         </View>
 
         <View style={styles.chipRow}>
           <MetaChip icon="file-text-o" label={book.format.toUpperCase()} background={surfaceHover} />
-          <MetaChip icon="files-o" label={`${book.pageCount} Seiten`} background={surfaceHover} />
-          <MetaChip icon="hdd-o" label={`${book.sizeMb.toFixed(1)} MB`} background={surfaceHover} />
+          {chapterOrPageCount != null && (
+            <MetaChip
+              icon="files-o"
+              label={t("bookDetail.pages", { count: chapterOrPageCount })}
+              background={surfaceHover}
+            />
+          )}
+          <MetaChip
+            icon="hdd-o"
+            label={t("bookDetail.sizeInMb", { size: (book.sizeBytes / (1024 * 1024)).toFixed(1) })}
+            background={surfaceHover}
+          />
         </View>
 
         {!isUnread && (
           <View style={styles.progressSection}>
             <View style={styles.progressLabelRow}>
               <Text style={[styles.progressLabel, { color: textMuted }]}>
-                {isFinished ? "Gelesen" : `Seite ${book.currentPage} von ${book.pageCount}`}
+                {isFinished
+                  ? t("bookDetail.finished")
+                  : book.format === "epub"
+                    ? t("bookDetail.chaptersRead", { current: book.currentPosition + 1, total: book.spine.length })
+                    : t("bookDetail.pagesRead", { current: book.currentPosition, total: book.pageCount ?? "?" })}
               </Text>
-              <Text style={[styles.progressLabel, { color: textMuted }]}>
-                {Math.round(book.progress * 100)}%
-              </Text>
+              <Text style={[styles.progressLabel, { color: textMuted }]}>{Math.round(book.progress * 100)}%</Text>
             </View>
             <View style={[styles.progressTrack, { backgroundColor: borderMuted }]}>
               <View
@@ -86,7 +180,7 @@ export default function BookDetail() {
         )}
 
         <Text style={[styles.addedAt, { color: textMuted }]}>
-          Hinzugefügt am {dateFormatter.format(new Date(book.addedAt))}
+          {t("bookDetail.addedOn", { date: dateFormatter.format(new Date(book.addedAt)) })}
         </Text>
 
         <Pressable
@@ -98,14 +192,14 @@ export default function BookDetail() {
         </Pressable>
 
         <Pressable
-          onPress={() => showToast(`„${book.title}“ wurde entfernt`, "success")}
+          onPress={handleRemove}
           style={({ pressed }) => [
             styles.deleteButton,
             { borderColor: border, opacity: pressed ? 0.6 : 1 },
           ]}
         >
           <FontAwesome name="trash-o" size={15} color={danger} />
-          <Text style={[styles.deleteButtonText, { color: danger }]}>Aus Bibliothek entfernen</Text>
+          <Text style={[styles.deleteButtonText, { color: danger }]}>{t("bookDetail.remove")}</Text>
         </Pressable>
       </ScrollView>
     </View>
@@ -162,6 +256,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: Colors.gapMedium,
+    overflow: "hidden",
+  },
+  coverImage: {
+    width: "100%",
+    height: "100%",
   },
   coverInitial: {
     fontSize: 56,
@@ -169,10 +268,35 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.85)",
   },
   titleBlock: { alignItems: "center", gap: 4 },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Colors.gapXSmall,
+  },
   title: {
     fontSize: Colors.fontSizeXXLarge,
     fontWeight: Colors.fontWeightBold,
     textAlign: "center",
+  },
+  titleEditRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Colors.gapXSmall,
+  },
+  titleInput: {
+    fontSize: Colors.fontSizeXXLarge,
+    fontWeight: Colors.fontWeightBold,
+    textAlign: "center",
+    borderBottomWidth: 1,
+    paddingVertical: 2,
+    minWidth: 160,
+    maxWidth: 220,
+  },
+  titleEditButton: {
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
   },
   author: {
     fontSize: Colors.fontSizeMedium,

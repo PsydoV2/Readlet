@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet } from "react-native";
 
 import { PinDots, PinKeypad } from "@/src/components/PinKeypad";
@@ -24,6 +25,7 @@ type Step = "current" | "new" | "confirm";
  * `AppLockProvider` for where the PIN is actually persisted.
  */
 export default function PinSetup() {
+  const { t } = useTranslation();
   const { mode: rawMode } = useLocalSearchParams<{ mode: string }>();
   const mode: Mode = rawMode === "change" || rawMode === "disable" ? rawMode : "enable";
   const router = useRouter();
@@ -38,14 +40,18 @@ export default function PinSetup() {
   const textMuted = useThemeColor({}, "textMuted");
   const danger = useThemeColor({}, "danger");
 
-  const title = mode === "disable" ? "PIN-Sperre deaktivieren" : mode === "change" ? "PIN ändern" : "PIN festlegen";
-  const subtitle = error
-    ? "Falsche PIN"
-    : step === "current"
-      ? "Gib deine aktuelle PIN ein"
-      : step === "new"
-        ? "Wähle eine 4-stellige PIN"
-        : "Bestätige die neue PIN";
+  const title = t(
+    mode === "disable" ? "pinSetup.titleDisable" : mode === "change" ? "pinSetup.titleChange" : "pinSetup.titleEnable"
+  );
+  const subtitle = t(
+    error
+      ? "pinSetup.subtitleError"
+      : step === "current"
+        ? "pinSetup.subtitleCurrent"
+        : step === "new"
+          ? "pinSetup.subtitleNew"
+          : "pinSetup.subtitleConfirm"
+  );
 
   function flashError() {
     setError(true);
@@ -65,7 +71,7 @@ export default function PinSetup() {
 
       if (mode === "disable") {
         await disablePinLock();
-        showToast("PIN-Sperre deaktiviert", "success");
+        showToast(t("pinSetup.disabledToast"), "success");
         goBack(router, "/settings");
         return;
       }
@@ -91,7 +97,7 @@ export default function PinSetup() {
 
     await setPin(pinValue);
     setInput("");
-    showToast(mode === "change" ? "PIN geändert" : "PIN-Sperre aktiviert", "success");
+    showToast(t(mode === "change" ? "pinSetup.changedToast" : "pinSetup.enabledToast"), "success");
     goBack(router, "/settings");
   }
 

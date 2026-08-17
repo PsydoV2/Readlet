@@ -1,0 +1,92 @@
+{
+  "common": {
+    "unknown": "Unknown"
+  },
+  "library": {
+    "title": "Library",
+    "count_one": "{{count}} book",
+    "count_other": "{{count}} books",
+    "emptyTitle": "Your library is empty",
+    "emptySubtitle": "Import an EPUB or PDF to get started."
+  },
+  "bookDetail": {
+    "notFound": "Book not found.",
+    "ctaContinue": "Continue reading",
+    "ctaStart": "Start reading",
+    "ctaRestart": "Read again",
+    "chaptersRead": "Chapter {{current}} of {{total}}",
+    "pagesRead": "Page {{current}} of {{total}}",
+    "finished": "Finished",
+    "pages_one": "{{count}} page",
+    "pages_other": "{{count}} pages",
+    "sizeInMb": "{{size}} MB",
+    "addedOn": "Added on {{date}}",
+    "remove": "Remove from library",
+    "removedToast": "“{{title}}” was removed",
+    "renameEmptyError": "Title can't be empty.",
+    "renameSuccessToast": "Title updated"
+  },
+  "reader": {
+    "notFound": "Book not found.",
+    "chapterOf": "Chapter {{current}} of {{total}}",
+    "previousChapter": "Back",
+    "nextChapter": "Next"
+  },
+  "import": {
+    "title": "Import a book",
+    "dropTitle": "Choose an EPUB or PDF",
+    "dropSubtitle": "The book stays on your device — no upload, no account needed.",
+    "pickButton": "Choose file",
+    "hint": "Supports .epub and .pdf",
+    "importingToast": "Importing book …",
+    "successToast": "Imported “{{title}}”",
+    "errorToast": "Import failed: {{message}}",
+    "errors": {
+      "unsupportedFormat": "Unsupported file format — only EPUB and PDF are supported."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language",
+    "languageSystem": "System language",
+    "languageDe": "Deutsch",
+    "languageEn": "English",
+    "appLock": "App lock",
+    "pinLock": "PIN lock",
+    "changePin": "Change PIN",
+    "useBiometric": "Use {{label}}",
+    "lockNow": "Lock now",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "imprint": "Imprint",
+    "linkErrorToast": "Couldn't open the link",
+    "biometricErrorToast": "Couldn't enable {{label}}"
+  },
+  "pinSetup": {
+    "titleDisable": "Turn off PIN lock",
+    "titleChange": "Change PIN",
+    "titleEnable": "Set a PIN",
+    "subtitleError": "Wrong PIN",
+    "subtitleCurrent": "Enter your current PIN",
+    "subtitleNew": "Choose a 4-digit PIN",
+    "subtitleConfirm": "Confirm the new PIN",
+    "disabledToast": "PIN lock turned off",
+    "changedToast": "PIN changed",
+    "enabledToast": "PIN lock turned on"
+  },
+  "lock": {
+    "title": "Readlet is locked",
+    "subtitleError": "Wrong PIN",
+    "subtitle": "Enter your PIN",
+    "useBiometric": "Unlock with {{label}}"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "subtitle": "This route doesn't exist.",
+    "backHome": "Back to home"
+  }
+}

@@ -1,7 +1,10 @@
 import { Text, View } from "@/src/components/Themed";
 import { Link } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 export default function NotFound() {
+  const { t } = useTranslation();
+
   return (
     <View
       style={{
@@ -11,12 +14,10 @@ export default function NotFound() {
         padding: 24,
       }}
     >
-      <Text style={{ fontSize: 20, fontWeight: "700" }}>Not found</Text>
-      <Text style={{ marginTop: 8, opacity: 0.8 }}>
-        This route does not exist.
-      </Text>
+      <Text style={{ fontSize: 20, fontWeight: "700" }}>{t("notFound.title")}</Text>
+      <Text style={{ marginTop: 8, opacity: 0.8 }}>{t("notFound.subtitle")}</Text>
       <Link href={"/"}>
-        <Text>Back to home</Text>
+        <Text>{t("notFound.backHome")}</Text>
       </Link>
     </View>
   );

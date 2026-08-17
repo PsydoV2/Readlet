@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Redirect } from "expo-router";
@@ -18,6 +19,7 @@ const WRONG_PIN_RESET_DELAY_MS = 400;
  * which flips `isLocked` false and this redirects straight back to `/`.
  */
 export default function Lock() {
+  const { t } = useTranslation();
   const { isLocked, biometricEnabled, biometricLabel, verifyPin, authenticateWithBiometrics, unlock } = useAppLock();
   const [input, setInput] = useState("");
   const [error, setError] = useState(false);
@@ -70,9 +72,9 @@ export default function Lock() {
       <View style={[styles.iconCircle, { backgroundColor: primarySoft }]}>
         <FontAwesome name="lock" size={26} color={primary} />
       </View>
-      <Text style={styles.title}>Readlet ist gesperrt</Text>
+      <Text style={styles.title}>{t("lock.title")}</Text>
       <Text style={[styles.subtitle, { color: error ? danger : textMuted }]}>
-        {error ? "Falsche PIN" : "Gib deine PIN ein"}
+        {error ? t("lock.subtitleError") : t("lock.subtitle")}
       </Text>
 
       <View style={styles.dotsWrapper}>
@@ -83,7 +85,9 @@ export default function Lock() {
 
       {biometricEnabled && (
         <Pressable onPress={tryBiometrics} hitSlop={8} style={styles.biometricButton}>
-          <Text style={[styles.biometricButtonText, { color: primary }]}>Mit {biometricLabel} entsperren</Text>
+          <Text style={[styles.biometricButtonText, { color: primary }]}>
+            {t("lock.useBiometric", { label: biometricLabel })}
+          </Text>
         </Pressable>
       )}
     </View>

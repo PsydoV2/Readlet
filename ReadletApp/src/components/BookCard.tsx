@@ -1,6 +1,7 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
-import { Pressable, StyleSheet } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, StyleSheet } from "react-native";
 
 import { Text, View, useThemeColor } from "@/src/components/Themed";
 import Colors from "@/src/constants/StyleVariables";
@@ -13,9 +14,11 @@ export default function BookCard({ book }: { book: Book }) {
   const textMuted = useThemeColor({}, "textMuted");
   const success = useThemeColor({}, "success");
   const onSuccess = useThemeColor({}, "onSuccess");
+  const [coverFailed, setCoverFailed] = useState(false);
 
   const isFinished = book.progress >= 1;
   const isUnread = book.progress <= 0;
+  const showCoverImage = book.coverUri && !coverFailed;
 
   return (
     <Pressable
@@ -27,11 +30,19 @@ export default function BookCard({ book }: { book: Book }) {
       <View
         style={[
           styles.cover,
-          { backgroundColor: book.accent },
+          !showCoverImage && { backgroundColor: book.accent },
           Colors.shadowSm,
         ]}
       >
-        <Text style={styles.coverInitial}>{book.title.charAt(0)}</Text>
+        {showCoverImage ? (
+          <Image
+            source={{ uri: book.coverUri ?? undefined }}
+            style={styles.coverImage}
+            onError={() => setCoverFailed(true)}
+          />
+        ) : (
+          <Text style={styles.coverInitial}>{book.title.charAt(0)}</Text>
+        )}
 
         <View
           style={[styles.formatBadge, { backgroundColor: "rgba(0,0,0,0.35)" }]}
@@ -85,6 +96,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: Colors.gapXSmall,
+    overflow: "hidden",
+  },
+  coverImage: {
+    width: "100%",
+    height: "100%",
   },
   coverInitial: {
     fontSize: Colors.fontSizeXXXLarge,

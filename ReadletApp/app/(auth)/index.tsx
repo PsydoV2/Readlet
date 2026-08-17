@@ -1,12 +1,13 @@
 import { useRouter } from "expo-router";
-import { FlatList, Pressable, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
+import { ActivityIndicator, FlatList, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import BookCard from "@/src/components/BookCard";
 import { Card, Text, View, useThemeColor } from "@/src/components/Themed";
 import Colors from "@/src/constants/StyleVariables";
-import mockBooks from "@/src/data/mockBooks";
+import { useLibrary } from "@/src/context/LibraryProvider";
 
 /**
  * Library — the app's home screen: a grid of imported books with cover
@@ -14,8 +15,10 @@ import mockBooks from "@/src/data/mockBooks";
  * planned flow.
  */
 export default function Library() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { books, isLoading } = useLibrary();
   const primary = useThemeColor({}, "primary");
   const primarySoft = useThemeColor({}, "primarySoft");
   const textMuted = useThemeColor({}, "textMuted");
@@ -23,8 +26,6 @@ export default function Library() {
   const surfaceHover = useThemeColor({}, "surfaceHover");
   const canvas = useThemeColor({}, "canvas");
   const border = useThemeColor({}, "border");
-
-  const books = mockBooks;
 
   return (
     <View style={styles.root}>
@@ -35,9 +36,9 @@ export default function Library() {
         ]}
       >
         <View style={styles.headerTextBlock}>
-          <Text style={styles.headerTitle}>Bibliothek</Text>
+          <Text style={styles.headerTitle}>{t("library.title")}</Text>
           <Text style={[styles.headerSubtitle, { color: textMuted }]}>
-            {books.length} {books.length === 1 ? "Buch" : "Bücher"}
+            {t("library.count", { count: books.length })}
           </Text>
         </View>
         <View style={styles.headerActions}>
@@ -64,29 +65,33 @@ export default function Library() {
         </View>
       </View>
 
-      <FlatList
-        data={books}
-        keyExtractor={(book) => book.id}
-        numColumns={2}
-        style={styles.list}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingTop: Colors.gapLarge, paddingBottom: insets.bottom + Colors.gapXXXLarge },
-        ]}
-        renderItem={({ item }) => <BookCard book={item} />}
-        ListEmptyComponent={
-          <Card style={styles.emptyCard}>
-            <View style={[styles.emptyIconCircle, { backgroundColor: primarySoft }]}>
-              <FontAwesome name="book" size={26} color={primary} />
-            </View>
-            <Text style={styles.emptyTitle}>Deine Bibliothek ist leer</Text>
-            <Text style={[styles.emptySubtitle, { color: textMuted }]}>
-              Importiere ein EPUB oder PDF, um loszulegen.
-            </Text>
-          </Card>
-        }
-      />
+      {isLoading ? (
+        <View style={styles.loading}>
+          <ActivityIndicator color={primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={books}
+          keyExtractor={(book) => book.id}
+          numColumns={2}
+          style={styles.list}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingTop: Colors.gapLarge, paddingBottom: insets.bottom + Colors.gapXXXLarge },
+          ]}
+          renderItem={({ item }) => <BookCard book={item} />}
+          ListEmptyComponent={
+            <Card style={styles.emptyCard}>
+              <View style={[styles.emptyIconCircle, { backgroundColor: primarySoft }]}>
+                <FontAwesome name="book" size={26} color={primary} />
+              </View>
+              <Text style={styles.emptyTitle}>{t("library.emptyTitle")}</Text>
+              <Text style={[styles.emptySubtitle, { color: textMuted }]}>{t("library.emptySubtitle")}</Text>
+            </Card>
+          }
+        />
+      )}
     </View>
   );
 }
@@ -94,6 +99,7 @@ export default function Library() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   list: { flex: 1 },
+  loading: { flex: 1, alignItems: "center", justifyContent: "center" },
   listContent: {
     paddingHorizontal: Colors.gapLarge,
     flexGrow: 1,

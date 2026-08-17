@@ -1,0 +1,92 @@
+{
+  "common": {
+    "unknown": "Unbekannt"
+  },
+  "library": {
+    "title": "Bibliothek",
+    "count_one": "{{count}} Buch",
+    "count_other": "{{count}} Bücher",
+    "emptyTitle": "Deine Bibliothek ist leer",
+    "emptySubtitle": "Importiere ein EPUB oder PDF, um loszulegen."
+  },
+  "bookDetail": {
+    "notFound": "Buch nicht gefunden.",
+    "ctaContinue": "Weiterlesen",
+    "ctaStart": "Lesen starten",
+    "ctaRestart": "Erneut lesen",
+    "chaptersRead": "Kapitel {{current}} von {{total}}",
+    "pagesRead": "Seite {{current}} von {{total}}",
+    "finished": "Gelesen",
+    "pages_one": "{{count}} Seite",
+    "pages_other": "{{count}} Seiten",
+    "sizeInMb": "{{size}} MB",
+    "addedOn": "Hinzugefügt am {{date}}",
+    "remove": "Aus Bibliothek entfernen",
+    "removedToast": "„{{title}}“ wurde entfernt",
+    "renameEmptyError": "Titel darf nicht leer sein.",
+    "renameSuccessToast": "Titel geändert"
+  },
+  "reader": {
+    "notFound": "Buch nicht gefunden.",
+    "chapterOf": "Kapitel {{current}} von {{total}}",
+    "previousChapter": "Zurück",
+    "nextChapter": "Weiter"
+  },
+  "import": {
+    "title": "Buch importieren",
+    "dropTitle": "EPUB oder PDF auswählen",
+    "dropSubtitle": "Das Buch bleibt lokal auf deinem Gerät — kein Upload, kein Account nötig.",
+    "pickButton": "Datei auswählen",
+    "hint": "Unterstützt .epub und .pdf",
+    "importingToast": "Buch wird importiert …",
+    "successToast": "„{{title}}“ importiert",
+    "errorToast": "Import fehlgeschlagen: {{message}}",
+    "errors": {
+      "unsupportedFormat": "Nicht unterstütztes Dateiformat — nur EPUB und PDF werden unterstützt."
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "appearance": "Erscheinungsbild",
+    "themeSystem": "System",
+    "themeLight": "Hell",
+    "themeDark": "Dunkel",
+    "language": "Sprache",
+    "languageSystem": "Systemsprache",
+    "languageDe": "Deutsch",
+    "languageEn": "English",
+    "appLock": "App-Sperre",
+    "pinLock": "PIN-Sperre",
+    "changePin": "PIN ändern",
+    "useBiometric": "{{label}} verwenden",
+    "lockNow": "Jetzt sperren",
+    "legal": "Rechtliches",
+    "privacy": "Datenschutz",
+    "imprint": "Impressum",
+    "linkErrorToast": "Link konnte nicht geöffnet werden",
+    "biometricErrorToast": "{{label}} konnte nicht aktiviert werden"
+  },
+  "pinSetup": {
+    "titleDisable": "PIN-Sperre deaktivieren",
+    "titleChange": "PIN ändern",
+    "titleEnable": "PIN festlegen",
+    "subtitleError": "Falsche PIN",
+    "subtitleCurrent": "Gib deine aktuelle PIN ein",
+    "subtitleNew": "Wähle eine 4-stellige PIN",
+    "subtitleConfirm": "Bestätige die neue PIN",
+    "disabledToast": "PIN-Sperre deaktiviert",
+    "changedToast": "PIN geändert",
+    "enabledToast": "PIN-Sperre aktiviert"
+  },
+  "lock": {
+    "title": "Readlet ist gesperrt",
+    "subtitleError": "Falsche PIN",
+    "subtitle": "Gib deine PIN ein",
+    "useBiometric": "Mit {{label}} entsperren"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "subtitle": "Diese Route gibt es nicht.",
+    "backHome": "Zurück zur Startseite"
+  }
+}

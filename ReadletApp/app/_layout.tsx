@@ -1,3 +1,5 @@
+import "@/src/i18n"; // side-effect: initializes i18next synchronously before anything renders
+
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
@@ -9,6 +11,7 @@ import { DarkTheme, DefaultTheme, Slot, ThemeProvider } from "expo-router";
 import Colors from "@/src/constants/StyleVariables";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import { AppLockProvider, useAppLock } from "@/src/context/AppLockProvider";
+import { LibraryProvider } from "@/src/context/LibraryProvider";
 import { ThemePreferenceProvider } from "@/src/context/ThemePreferenceProvider";
 import { ToastProvider } from "@/src/context/ToastProvider";
 
@@ -52,9 +55,11 @@ export default function RootLayout() {
         {/* Wraps everything so both app/lock.tsx and (auth)/_layout.tsx's
             redirect can read it — see src/context/AppLockProvider.tsx. */}
         <AppLockProvider>
-          <ToastProvider>
-            <ThemedApp />
-          </ToastProvider>
+          <LibraryProvider>
+            <ToastProvider>
+              <ThemedApp />
+            </ToastProvider>
+          </LibraryProvider>
         </AppLockProvider>
       </ThemePreferenceProvider>
     </SafeAreaProvider>

@@ -17,7 +17,7 @@ export default function AuthLayout() {
   if (isLocked) return <Redirect href="/lock" />;
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack initialRouteName="index" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="import" options={{ presentation: "modal" }} />
       <Stack.Screen name="settings" options={{ presentation: "modal" }} />
     </Stack>
