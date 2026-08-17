@@ -24,16 +24,14 @@ ReadletApp/
 │   └── +not-found.tsx        # 404 fallback
 │
 ├── src/
-│   └── context/
-│       └── ToastProvider.tsx # showToast(message, type, duration)
-│
-├── components/
-│   ├── Themed.tsx            # Text, View, Card, ScreenContent
-│   ├── Toast.tsx             # Animated slide-in toast
-│   └── useColorScheme.ts
-│
-├── constants/
-│   └── StyleVariables.ts     # Color palette — light + dark
+│   ├── context/
+│   │   └── ToastProvider.tsx # showToast(message, type, duration)
+│   ├── components/
+│   │   ├── Themed.tsx        # Text, View, Card, ScreenContent
+│   │   ├── Toast.tsx         # Animated slide-in toast
+│   │   └── useColorScheme.ts
+│   └── constants/
+│       └── StyleVariables.ts # Color palette — light + dark
 │
 ├── app.json                  # plugins (incl. splash config), typedRoutes
 ├── tsconfig.json             # strict, paths (@/), moduleResolution: Bundler
@@ -69,7 +67,7 @@ Press `i` for the iOS simulator or `a` for the Android emulator.
 
 ## 🎨 Theming
 
-Colors live in `constants/StyleVariables.ts`. Both `light` and `dark` palettes share the same keys:
+Colors live in `src/constants/StyleVariables.ts`. Both `light` and `dark` palettes share the same keys:
 
 | Key         | Usage                          |
 | ----------- | ------------------------------ |
@@ -85,7 +83,7 @@ Colors live in `constants/StyleVariables.ts`. Both `light` and `dark` palettes s
 Use the `Themed` components for automatic light/dark switching:
 
 ```tsx
-import { Text, View, Card, ScreenContent } from "@/components/Themed";
+import { Text, View, Card, ScreenContent } from "@/src/components/Themed";
 
 <ScreenContent>
   <Card>

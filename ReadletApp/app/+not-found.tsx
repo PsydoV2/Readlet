@@ -1,4 +1,4 @@
-import { Text, View } from "@/components/Themed";
+import { Text, View } from "@/src/components/Themed";
 import { Link } from "expo-router";
 
 export default function NotFound() {

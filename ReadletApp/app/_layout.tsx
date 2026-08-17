@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
 import { DarkTheme, DefaultTheme, Slot, ThemeProvider } from "expo-router";
-import Colors from "@/constants/StyleVariables";
+import Colors from "@/src/constants/StyleVariables";
 import { ToastProvider } from "@/src/context/ToastProvider";
 
 export { ErrorBoundary } from "expo-router";

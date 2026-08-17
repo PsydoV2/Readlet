@@ -59,16 +59,16 @@ npx tsc --noEmit       # typecheck (no dedicated script)
 
 ### Toasts (`src/context/ToastProvider.tsx`)
 
-- `ToastProvider` / `useToast()` exposes `showToast(message, type?, duration?)` (`type` is `"success" | "error" | "info"`), rendering an animated overlay via `components/Toast.tsx`. No backend/auth dependency — use it for import errors, "book added", etc.
+- `ToastProvider` / `useToast()` exposes `showToast(message, type?, duration?)` (`type` is `"success" | "error" | "info"`), rendering an animated overlay via `src/components/Toast.tsx`. No backend/auth dependency — use it for import errors, "book added", etc.
 
-### Theming (`components/Themed.tsx` + `constants/StyleVariables.ts`)
+### Theming (`src/components/Themed.tsx` + `src/constants/StyleVariables.ts`)
 
-- `constants/StyleVariables.ts` exports a single object with parallel `light` and `dark` palettes sharing the same keys (`bgDark`, `bg`, `bgLight`, `text`, `textMuted`, `border`, `primary`, `danger`, `success`, etc.) plus shared `borderRadius`/`gap`. Add new colors to both palettes with the same key.
-- `components/Themed.tsx` exports `Text`, `View`, `Card`, `ScreenContent`, and the `useThemeColor(props, colorName)` hook — drop-in replacements for RN's `Text`/`View` that resolve colors via `useThemeColor` (per-component `light`/`dark` prop override → palette default) based on `useColorScheme()`. All screens use these instead of manually resolving `Colors[scheme]` — reach for `useThemeColor({}, "key")` when you need a raw color value (e.g. for a `Pressable`'s dynamic style function or an icon's `color` prop) rather than re-deriving the palette by hand. Note `View`/`Card` default their background to the palette (`bgDark`/`bgLight`) — for a purely structural wrapper nested inside a `Card` that shouldn't repaint its background, use plain RN `View` instead.
+- `src/constants/StyleVariables.ts` exports a single object with parallel `light` and `dark` palettes sharing the same keys (`bgDark`, `bg`, `bgLight`, `text`, `textMuted`, `border`, `primary`, `danger`, `success`, etc.) plus shared `borderRadius`/`gap`. Add new colors to both palettes with the same key.
+- `src/components/Themed.tsx` exports `Text`, `View`, `Card`, `ScreenContent`, and the `useThemeColor(props, colorName)` hook — drop-in replacements for RN's `Text`/`View` that resolve colors via `useThemeColor` (per-component `light`/`dark` prop override → palette default) based on `useColorScheme()`. All screens use these instead of manually resolving `Colors[scheme]` — reach for `useThemeColor({}, "key")` when you need a raw color value (e.g. for a `Pressable`'s dynamic style function or an icon's `color` prop) rather than re-deriving the palette by hand. Note `View`/`Card` default their background to the palette (`bgDark`/`bgLight`) — for a purely structural wrapper nested inside a `Card` that shouldn't repaint its background, use plain RN `View` instead.
 
 ### Path aliases
 
-`@/*` maps to the project root (not `src/`) — configured in both `tsconfig.json` (`paths`) and `babel.config.js` (`module-resolver`). Both must stay in sync if the alias changes. Example: `import Colors from "@/constants/StyleVariables"`, `import { useToast } from "@/src/context/ToastProvider"`.
+`@/*` maps to the project root — configured in both `tsconfig.json` (`paths`) and `babel.config.js` (`module-resolver`). Both must stay in sync if the alias changes. `components/` and `constants/` live under `src/` (there is no root-level `components/`/`constants/` anymore), so imports go through `@/src/...`. Example: `import Colors from "@/src/constants/StyleVariables"`, `import { useToast } from "@/src/context/ToastProvider"`.
 
 ### TypeScript strictness
 

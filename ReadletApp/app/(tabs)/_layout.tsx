@@ -2,7 +2,7 @@ import { type ComponentProps } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
 import { type ColorValue } from "react-native";
-import Colors from "@/constants/StyleVariables";
+import Colors from "@/src/constants/StyleVariables";
 import { useColorScheme } from "react-native";
 
 function TabBarIcon(props: {

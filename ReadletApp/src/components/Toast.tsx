@@ -1,4 +1,4 @@
-import Colors from "@/constants/StyleVariables";
+import Colors from "@/src/constants/StyleVariables";
 import { useEffect, useState } from "react";
 import { Animated, StyleSheet, Text, useColorScheme } from "react-native";
 

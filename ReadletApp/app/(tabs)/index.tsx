@@ -1,4 +1,4 @@
-import { Card, ScreenContent, Text, View, useThemeColor } from "@/components/Themed";
+import { Card, ScreenContent, Text, View, useThemeColor } from "@/src/components/Themed";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { StyleSheet } from "react-native";
 
