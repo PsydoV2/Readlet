@@ -68,7 +68,9 @@
     "privacy": "Datenschutz",
     "imprint": "Impressum",
     "linkErrorToast": "Link konnte nicht geöffnet werden",
-    "biometricErrorToast": "{{label}} konnte nicht aktiviert werden"
+    "biometricErrorToast": "{{label}} konnte nicht aktiviert werden",
+    "footerVersion": "Readlet {{version}}",
+    "footerCopyright": "© {{year}} Readlet"
   },
   "pinSetup": {
     "titleDisable": "PIN-Sperre deaktivieren",

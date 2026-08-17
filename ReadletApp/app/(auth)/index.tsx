@@ -5,9 +5,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import BookCard from "@/src/components/BookCard";
-import { Card, Text, View, useThemeColor } from "@/src/components/Themed";
+import { Text, View, useThemeColor } from "@/src/components/Themed";
 import Colors from "@/src/constants/StyleVariables";
 import { useLibrary } from "@/src/context/LibraryProvider";
+import { useToast } from "@/src/context/ToastProvider";
 
 /**
  * Library — the app's home screen: a grid of imported books with cover
@@ -18,7 +19,8 @@ export default function Library() {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { books, isLoading } = useLibrary();
+  const { books, isLoading, importBook, isImporting } = useLibrary();
+  const { showToast } = useToast();
   const primary = useThemeColor({}, "primary");
   const primarySoft = useThemeColor({}, "primarySoft");
   const textMuted = useThemeColor({}, "textMuted");
@@ -26,6 +28,19 @@ export default function Library() {
   const surfaceHover = useThemeColor({}, "surfaceHover");
   const canvas = useThemeColor({}, "canvas");
   const border = useThemeColor({}, "border");
+
+  async function handlePick() {
+    try {
+      const book = await importBook();
+      if (!book) return; // picker was canceled
+      showToast(t("import.successToast", { title: book.title }), "success");
+      router.push({ pathname: "/book/[id]", params: { id: book.id } });
+    } catch (error) {
+      console.error("[Import] Import fehlgeschlagen:", error);
+      const message = error instanceof Error ? error.message : String(error);
+      showToast(t("import.errorToast", { message }), "error");
+    }
+  }
 
   return (
     <View style={styles.root}>
@@ -82,13 +97,26 @@ export default function Library() {
           ]}
           renderItem={({ item }) => <BookCard book={item} />}
           ListEmptyComponent={
-            <Card style={styles.emptyCard}>
-              <View style={[styles.emptyIconCircle, { backgroundColor: primarySoft }]}>
-                <FontAwesome name="book" size={26} color={primary} />
-              </View>
-              <Text style={styles.emptyTitle}>{t("library.emptyTitle")}</Text>
-              <Text style={[styles.emptySubtitle, { color: textMuted }]}>{t("library.emptySubtitle")}</Text>
-            </Card>
+            <Pressable
+              onPress={handlePick}
+              disabled={isImporting}
+              style={({ pressed }) => [
+                styles.emptyCard,
+                { borderColor: border, opacity: pressed || isImporting ? 0.7 : 1 },
+              ]}
+            >
+              {isImporting ? (
+                <ActivityIndicator color={primary} />
+              ) : (
+                <>
+                  <View style={[styles.emptyIconCircle, { backgroundColor: primarySoft }]}>
+                    <FontAwesome name="upload" size={26} color={primary} />
+                  </View>
+                  <Text style={styles.emptyTitle}>{t("library.emptyTitle")}</Text>
+                  <Text style={[styles.emptySubtitle, { color: textMuted }]}>{t("library.emptySubtitle")}</Text>
+                </>
+              )}
+            </Pressable>
           }
         />
       )}
@@ -139,8 +167,12 @@ const styles = StyleSheet.create({
   emptyCard: {
     alignItems: "center",
     gap: Colors.gapSmall,
-    paddingVertical: Colors.gapXXLarge,
+    paddingVertical: Colors.gapXXXLarge,
+    paddingHorizontal: Colors.gapLarge,
     marginTop: Colors.gapXLarge,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderRadius: Colors.brLg,
   },
   emptyIconCircle: {
     width: 56,

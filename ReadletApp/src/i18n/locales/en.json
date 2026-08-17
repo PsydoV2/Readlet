@@ -68,7 +68,9 @@
     "privacy": "Privacy",
     "imprint": "Imprint",
     "linkErrorToast": "Couldn't open the link",
-    "biometricErrorToast": "Couldn't enable {{label}}"
+    "biometricErrorToast": "Couldn't enable {{label}}",
+    "footerVersion": "Readlet {{version}}",
+    "footerCopyright": "© {{year}} Readlet"
   },
   "pinSetup": {
     "titleDisable": "Turn off PIN lock",

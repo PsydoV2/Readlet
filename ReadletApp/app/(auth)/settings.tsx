@@ -1,4 +1,5 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -36,6 +37,7 @@ export default function Settings() {
   const textMuted = useThemeColor({}, "textMuted");
   const border = useThemeColor({}, "border");
   const primary = useThemeColor({}, "primary");
+  const appVersion = Constants.expoConfig?.version ?? "1.0.0";
 
   const themeOptions: { value: ThemePreference; label: string; icon: IconName }[] = [
     { value: "system", label: t("settings.themeSystem"), icon: "adjust" },
@@ -185,6 +187,15 @@ export default function Settings() {
             onPress={() => openLegalLink(LegalLinks.imprintUrl)}
           />
         </Card>
+
+        <View style={styles.footer}>
+          <Text style={[styles.footerText, { color: textMuted }]}>
+            {t("settings.footerVersion", { version: appVersion })}
+          </Text>
+          <Text style={[styles.footerText, { color: textMuted }]}>
+            {t("settings.footerCopyright", { year: new Date().getFullYear() })}
+          </Text>
+        </View>
       </ScrollView>
     </View>
   );
@@ -351,5 +362,13 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     fontSize: Colors.fontSizeMedium,
+  },
+  footer: {
+    alignItems: "center",
+    gap: 2,
+    marginTop: Colors.gapXLarge,
+  },
+  footerText: {
+    fontSize: Colors.fontSizeXSmall,
   },
 });

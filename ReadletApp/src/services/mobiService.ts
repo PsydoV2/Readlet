@@ -42,11 +42,22 @@ export type ParsedMobi = {
  *   are implemented.
  */
 export async function extractAndParseMobi(sourceFile: File, bookId: string): Promise<ParsedMobi> {
+  try {
+    return await extractAndParseMobiInner(sourceFile, bookId);
+  } catch (error) {
+    console.error(`[MobiImport] Fehlgeschlagen für "${sourceFile.name}" (bookId=${bookId}):`, error);
+    throw error;
+  }
+}
+
+async function extractAndParseMobiInner(sourceFile: File, bookId: string): Promise<ParsedMobi> {
   const bytes = await sourceFile.bytes();
+  console.log(`[MobiImport] "${sourceFile.name}": ${bytes.length} Bytes gelesen (bookId=${bookId}).`);
   if (bytes.length < 78) throw new Error("Ungültige MOBI-Datei: zu klein für einen PalmDB-Header.");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
   const numRecords = view.getUint16(76, false);
+  console.log(`[MobiImport] PalmDB-Header: numRecords=${numRecords}`);
   if (numRecords < 1) throw new Error("Ungültige MOBI-Datei: keine Records im PalmDB-Header.");
 
   const recordOffsets: number[] = [];
@@ -90,15 +101,24 @@ export async function extractAndParseMobi(sourceFile: File, bookId: string): Pro
   // trimming rather than corrupting it — see `getTrailingByteCount`.
   const extraFlags = mobiHeaderLength >= 232 && record0.length >= 244 ? header0.getUint16(242, false) : 0;
 
+  console.log(
+    `[MobiImport] MOBI-Header: compression=${compression} textLength=${textLength} textRecordCount=${textRecordCount} ` +
+      `encryptionType=${encryptionType} mobiHeaderLength=${mobiHeaderLength} textEncoding=${textEncoding} ` +
+      `firstImageIndex=${firstImageIndex === 0xffffffff ? "none" : firstImageIndex} exthFlags=${exthFlags.toString(16)} extraFlags=${extraFlags}`
+  );
+
   if (encryptionType !== 0) {
+    console.error(`[MobiImport] Abbruch: encryptionType=${encryptionType} (DRM-geschützt).`);
     throw new Error(i18next.t("import.errors.drmProtected"));
   }
   if (compression !== 1 && compression !== 2) {
+    console.error(`[MobiImport] Abbruch: nicht unterstützte Kompression (compression=${compression}, erwartet 1 oder 2).`);
     throw new Error(i18next.t("import.errors.unsupportedMobiCompression"));
   }
 
   const exthStart = 16 + mobiHeaderLength;
   const exthRecords = (exthFlags & 0x40) !== 0 ? parseExthRecords(record0, header0, exthStart) : new Map<number, Uint8Array>();
+  console.log(`[MobiImport] EXTH-Records gefunden: ${exthRecords.size}`);
   const authorBytes = exthRecords.get(100);
   const author = authorBytes && authorBytes.length > 0 ? decodeText(authorBytes, textEncoding).trim() : "";
 
@@ -108,6 +128,7 @@ export async function extractAndParseMobi(sourceFile: File, bookId: string): Pro
       ? decodeText(record0.subarray(fullNameOffset, fullNameOffset + fullNameLength), textEncoding).trim()
       : "";
   const title = declaredTitle || fallbackTitle;
+  console.log(`[MobiImport] Titel="${title}" Autor="${author || "(unbekannt)"}"`);
 
   // Decompress the text records into one buffer, sized exactly to the
   // PalmDOC header's declared `textLength` — records occasionally overshoot
@@ -121,6 +142,10 @@ export async function extractAndParseMobi(sourceFile: File, bookId: string): Pro
     outPos = compression === 2 ? decompressPalmDocRecord(payload, out, outPos) : copyRecord(payload, out, outPos);
   }
   const fullHtml = decodeText(out.subarray(0, Math.min(outPos, textLength)), textEncoding);
+  console.log(
+    `[MobiImport] Text dekomprimiert: ${outPos}/${textLength} Bytes geschrieben` +
+      (outPos !== textLength ? " (Abweichung von textLength — evtl. Trunkierung/Padding)" : "")
+  );
 
   const extractedDir = new Directory(Paths.document, "books", bookId);
   extractedDir.create({ intermediates: true, idempotent: true });
@@ -146,6 +171,7 @@ export async function extractAndParseMobi(sourceFile: File, bookId: string): Pro
       recindexNumber += 1;
     }
   }
+  console.log(`[MobiImport] Bilder extrahiert: ${imageFiles.size}`);
   const htmlWithImages = inlineImageSrcs(fullHtml, imageFiles);
 
   const coverOffsetBytes = exthRecords.get(201);
@@ -165,7 +191,13 @@ export async function extractAndParseMobi(sourceFile: File, bookId: string): Pro
   // PDFs, see CLAUDE.md's Reader section).
   const bodyMatch = /<body[^>]*>([\s\S]*)<\/body>/i.exec(htmlWithImages);
   const bodyContent = bodyMatch ? (bodyMatch[1] ?? htmlWithImages) : htmlWithImages;
-  const chapters = splitOnPagebreaks(bodyContent) ?? splitOnHeadings(bodyContent) ?? [bodyContent];
+  const viaPagebreaks = splitOnPagebreaks(bodyContent);
+  const viaHeadings = viaPagebreaks ? null : splitOnHeadings(bodyContent);
+  const chapters = viaPagebreaks ?? viaHeadings ?? [bodyContent];
+  console.log(
+    `[MobiImport] Kapitel-Splitting: ${chapters.length} Kapitel via ` +
+      (viaPagebreaks ? "mbp:pagebreak" : viaHeadings ? "h1/h2-Überschriften" : "Fallback (ein Kapitel)")
+  );
 
   const spine: string[] = [];
   chapters.forEach((chapterHtml, index) => {
@@ -177,6 +209,9 @@ export async function extractAndParseMobi(sourceFile: File, bookId: string): Pro
   });
   if (spine.length === 0) throw new Error("Ungültige MOBI-Datei: kein Textinhalt gefunden.");
 
+  console.log(
+    `[MobiImport] Fertig: "${title}" — ${spine.length} Kapitel, Cover=${coverPath ?? "keins"}, extractedDir=${extractedDir.uri}`
+  );
   return { title, author: author || "Unbekannt", spine, extractedDir: extractedDir.uri, coverPath };
 }
 
@@ -321,7 +356,10 @@ function decodeUtf8(bytes: Uint8Array): string {
       const b2 = bytes[i++] ?? 0;
       const b3 = bytes[i++] ?? 0;
       const codepoint = ((b0 & 0x07) << 18) | ((b1 & 0x3f) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f);
-      result += String.fromCodePoint(codepoint);
+      // A well-formed 4-byte sequence only ever encodes up to U+10FFFF (leading byte 0xf0–0xf4);
+      // 0xf5–0xff and malformed continuation bytes can still reach this branch on corrupt input,
+      // so guard against handing String.fromCodePoint an out-of-range value.
+      result += codepoint <= 0x10ffff ? String.fromCodePoint(codepoint) : String.fromCharCode(0xfffd);
     } else {
       result += String.fromCharCode(0xfffd);
     }

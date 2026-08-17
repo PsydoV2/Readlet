@@ -69,6 +69,7 @@ export async function importBookFromPicker(): Promise<Book | null> {
   if (!asset) return null;
 
   const format = formatFromAsset(asset.name, asset.mimeType);
+  console.log(`[Import] Datei ausgewählt: "${asset.name}" mimeType=${asset.mimeType ?? "(keiner)"} -> format=${format ?? "unbekannt"}`);
   if (!format) {
     throw new Error(i18next.t("import.errors.unsupportedFormat"));
   }
@@ -82,6 +83,7 @@ export async function importBookFromPicker(): Promise<Book | null> {
   const bytes = await pickedFile.bytes();
   destination.create({ intermediates: true, overwrite: true });
   destination.write(bytes);
+  console.log(`[Import] Datei kopiert nach ${destination.uri} (${bytes.length} Bytes, id=${id}).`);
 
   let title = asset.name.replace(/\.(epub|pdf|mobi|azw3?|azw)$/i, "");
   let author = "Unbekannt";
@@ -119,6 +121,7 @@ export async function importBookFromPicker(): Promise<Book | null> {
   };
 
   await insertBook(book);
+  console.log(`[Import] Buch in DB gespeichert: id=${id} title="${title}" format=${format}.`);
   return book;
 }
 
