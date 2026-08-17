@@ -32,24 +32,24 @@ export default function Library() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, alignItems: "center" },
-  content: { flex: 0, alignItems: "center", paddingTop: Colors.spacing.xxxl },
+  content: { flex: 0, alignItems: "center", paddingTop: Colors.gapXXXLarge },
   card: {
     alignItems: "center",
-    gap: Colors.spacing.sm,
-    paddingVertical: Colors.spacing.xxl,
+    gap: Colors.gapSmall,
+    paddingVertical: Colors.gapXXLarge,
     width: "100%",
   },
   iconCircle: {
     width: 56,
     height: 56,
-    borderRadius: Colors.radius.full,
+    borderRadius: Colors.brRound,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: Colors.spacing.sm,
+    marginBottom: Colors.gapSmall,
   },
   title: {
-    fontSize: Colors.typography.fontSize.lg,
-    fontWeight: Colors.typography.fontWeight.semibold,
+    fontSize: Colors.fontSizeLarge,
+    fontWeight: Colors.fontWeightSemibold,
   },
-  subtitle: { fontSize: Colors.typography.fontSize.base, textAlign: "center" },
+  subtitle: { fontSize: Colors.fontSizeMedium, textAlign: "center" },
 });

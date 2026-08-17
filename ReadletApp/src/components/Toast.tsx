@@ -72,13 +72,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 40,
     alignSelf: "center",
-    paddingVertical: Colors.spacing.sm,
-    paddingHorizontal: Colors.spacing.lg,
-    borderRadius: Colors.radius.md,
+    paddingVertical: Colors.gapSmall,
+    paddingHorizontal: Colors.gapLarge,
+    borderRadius: Colors.brMd,
     zIndex: 9999,
-    ...Colors.shadow.md,
+    ...Colors.shadowMd,
   },
   text: {
-    fontWeight: Colors.typography.fontWeight.semibold,
+    fontWeight: Colors.fontWeightSemibold,
   },
 });

@@ -16,7 +16,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FAF9F7"
       }
     },
     "plugins": [
@@ -27,7 +27,10 @@
         {
           "image": "./assets/images/splash.png",
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#FAF9F7",
+          "dark": {
+            "backgroundColor": "#181614"
+          }
         }
       ],
       "expo-status-bar"

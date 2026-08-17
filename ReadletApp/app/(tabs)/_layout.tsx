@@ -25,8 +25,8 @@ export default function TabsLayout() {
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textSubtle,
         tabBarLabelStyle: {
-          fontSize: Colors.typography.fontSize.xs,
-          fontWeight: Colors.typography.fontWeight.semibold,
+          fontSize: Colors.fontSizeXSmall,
+          fontWeight: Colors.fontWeightSemibold,
         },
       }}
     >

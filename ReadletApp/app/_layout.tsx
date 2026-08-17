@@ -14,6 +14,35 @@ export { ErrorBoundary } from "expo-router";
 
 SplashScreen.preventAutoHideAsync();
 
+// Navigation chrome (headers/back buttons on any Stack we add, default
+// screen/card backgrounds) themed from our own palette instead of the
+// generic iOS-blue expo-router defaults.
+const navigationLightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: Colors.light.primary,
+    background: Colors.light.canvas,
+    card: Colors.light.surface,
+    text: Colors.light.text,
+    border: Colors.light.border,
+    notification: Colors.light.danger,
+  },
+};
+
+const navigationDarkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: Colors.dark.primary,
+    background: Colors.dark.canvas,
+    card: Colors.dark.surface,
+    text: Colors.dark.text,
+    border: Colors.dark.border,
+    notification: Colors.dark.danger,
+  },
+};
+
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     ...FontAwesome.font,
@@ -41,7 +70,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ToastProvider>
-        <ThemeProvider value={scheme === "dark" ? DarkTheme : DefaultTheme}>
+        <ThemeProvider value={scheme === "dark" ? navigationDarkTheme : navigationLightTheme}>
           <StatusBar style="auto" />
           <Slot />
         </ThemeProvider>

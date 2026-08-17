@@ -88,9 +88,17 @@ rounded corners, soft elevation used sparingly).
 | `success` / `warning` / `danger` / `info` | Status colors                    |
 | `onSuccess` / `onWarning` / `onDanger` / `onInfo` | Text/icon color on those surfaces |
 
-`spacing`, `radius`, `typography`, and `shadow` are theme-independent scales
-shared by both modes — reach for `Colors.spacing.md`, `Colors.radius.lg`, etc.
-instead of hardcoding numbers.
+Everything else is a flat, theme-independent token — reach for these instead
+of hardcoding numbers:
+
+| Prefix        | Example                          | Meaning                    |
+| ------------- | --------------------------------- | --------------------------- |
+| `br*`         | `brSm`, `brMd`, `brLg`, `brXl`, `brRound` | Border radius        |
+| `gap*`        | `gapXSmall` … `gapXXXLarge`       | Spacing                     |
+| `fontSize*`   | `fontSizeXSmall` … `fontSizeXXXLarge` | Font sizes              |
+| `fontWeight*` | `fontWeightRegular` … `fontWeightBold` | Font weights           |
+| `lineHeight*` | `lineHeightXSmall` … `lineHeightXXXLarge` | Line heights (absolute px) |
+| `shadow*`     | `shadowSm`, `shadowMd`, `shadowLg` | Elevation presets           |
 
 Use the `Themed` components for automatic light/dark switching:
 

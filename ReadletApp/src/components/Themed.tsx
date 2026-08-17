@@ -92,14 +92,14 @@ export function ScreenContent({
 
 const themedStyles = StyleSheet.create({
   card: {
-    borderRadius: Colors.radius.md,
+    borderRadius: Colors.brMd,
     borderWidth: 1,
-    padding: Colors.spacing.lg,
+    padding: Colors.gapLarge,
   },
   screenContent: {
     flex: 1,
     width: "100%",
-    padding: Colors.spacing.xl,
-    gap: Colors.spacing.lg,
+    padding: Colors.gapXLarge,
+    gap: Colors.gapLarge,
   },
 });
