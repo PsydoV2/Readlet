@@ -29,7 +29,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!loaded) return;
-    const bg = scheme === "dark" ? Colors.dark.bgDark : Colors.light.bgDark;
+    const bg = scheme === "dark" ? Colors.dark.canvas : Colors.light.canvas;
     void (async () => {
       await SystemUI.setBackgroundColorAsync(bg).catch(console.error);
       await SplashScreen.hideAsync().catch(console.error);

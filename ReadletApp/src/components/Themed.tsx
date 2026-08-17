@@ -40,17 +40,17 @@ export function View(props: ViewProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
   const backgroundColor = useThemeColor(
     { light: lightColor, dark: darkColor },
-    "bgDark"
+    "canvas"
   );
   return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
 }
 
-/** Card with bgLight background and a subtle border. */
+/** Card with `surface` background and a subtle border. */
 export function Card(props: ViewProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
   const backgroundColor = useThemeColor(
     { light: lightColor, dark: darkColor },
-    "bgLight"
+    "surface"
   );
   const borderColor = useThemeColor({}, "border");
   return (
@@ -92,14 +92,14 @@ export function ScreenContent({
 
 const themedStyles = StyleSheet.create({
   card: {
-    borderRadius: 12,
+    borderRadius: Colors.radius.md,
     borderWidth: 1,
-    padding: 16,
+    padding: Colors.spacing.lg,
   },
   screenContent: {
     flex: 1,
     width: "100%",
-    padding: 20,
-    gap: 16,
+    padding: Colors.spacing.xl,
+    gap: Colors.spacing.lg,
   },
 });

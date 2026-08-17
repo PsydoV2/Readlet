@@ -65,20 +65,32 @@ Press `i` for the iOS simulator or `a` for the Android emulator.
 
 ---
 
-## 🎨 Theming
+## 🎨 Design system
 
-Colors live in `src/constants/StyleVariables.ts`. Both `light` and `dark` palettes share the same keys:
+Everything lives in `src/constants/StyleVariables.ts`: Notion-style neutral,
+content-first minimalism (warm off-white/ink canvas, borders over shadows)
+crossed with Airbnb-style polish (a single warm terracotta accent, generous
+rounded corners, soft elevation used sparingly).
 
-| Key         | Usage                          |
-| ----------- | ------------------------------ |
-| `bgDark`    | Screen background, tab bar     |
-| `bgLight`   | Cards, inputs                  |
-| `text`      | Primary text                   |
-| `textMuted` | Labels, hints                  |
-| `border`    | Card borders, dividers         |
-| `primary`   | Buttons, active states, links  |
-| `danger`    | Destructive actions, errors    |
-| `success`   | Confirmations, positive states |
+`light` and `dark` are flat color maps sharing the same keys:
+
+| Key                          | Usage                                         |
+| ----------------------------- | ---------------------------------------------- |
+| `canvas`                      | Screen background, tab bar                     |
+| `surface`                     | Cards, sheets                                  |
+| `surfaceHover`                | Pressed/hover fill, input backgrounds          |
+| `text` / `textMuted` / `textSubtle` | Primary / secondary / placeholder text   |
+| `border` / `borderMuted`      | Card borders, dividers                         |
+| `overlay`                     | Modal/sheet scrim                              |
+| `primary` / `primarySoft`     | Buttons, active states, links / tinted badges  |
+| `onPrimary`                   | Text/icon color on a solid `primary` surface   |
+| `secondary`                   | Secondary accents (ratings, streaks)           |
+| `success` / `warning` / `danger` / `info` | Status colors                    |
+| `onSuccess` / `onWarning` / `onDanger` / `onInfo` | Text/icon color on those surfaces |
+
+`spacing`, `radius`, `typography`, and `shadow` are theme-independent scales
+shared by both modes — reach for `Colors.spacing.md`, `Colors.radius.lg`, etc.
+instead of hardcoding numbers.
 
 Use the `Themed` components for automatic light/dark switching:
 

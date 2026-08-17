@@ -19,12 +19,15 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: theme.bgDark },
+        headerStyle: { backgroundColor: theme.canvas },
         headerTintColor: theme.text,
-        tabBarStyle: { backgroundColor: theme.bgDark },
+        tabBarStyle: { backgroundColor: theme.canvas },
         tabBarActiveTintColor: theme.primary,
-        tabBarInactiveTintColor: theme.borderMuted,
-        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
+        tabBarInactiveTintColor: theme.textSubtle,
+        tabBarLabelStyle: {
+          fontSize: Colors.typography.fontSize.xs,
+          fontWeight: Colors.typography.fontWeight.semibold,
+        },
       }}
     >
       <Tabs.Screen

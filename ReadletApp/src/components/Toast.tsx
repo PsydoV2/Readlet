@@ -26,6 +26,12 @@ export default function Toast({
       : type === "error"
       ? colorPalette.danger
       : colorPalette.info;
+  const textColor =
+    type === "success"
+      ? colorPalette.onSuccess
+      : type === "error"
+      ? colorPalette.onDanger
+      : colorPalette.onInfo;
 
   useEffect(() => {
     Animated.spring(translateY, {
@@ -56,7 +62,7 @@ export default function Toast({
         { backgroundColor: bgColor, transform: [{ translateY }] },
       ]}
     >
-      <Text style={styles.text}>{message}</Text>
+      <Text style={[styles.text, { color: textColor }]}>{message}</Text>
     </Animated.View>
   );
 }
@@ -66,17 +72,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 40,
     alignSelf: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+    paddingVertical: Colors.spacing.sm,
+    paddingHorizontal: Colors.spacing.lg,
+    borderRadius: Colors.radius.md,
     zIndex: 9999,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    ...Colors.shadow.md,
   },
   text: {
-    color: "white",
-    fontWeight: "600",
+    fontWeight: Colors.typography.fontWeight.semibold,
   },
 });

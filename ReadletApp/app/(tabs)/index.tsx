@@ -1,4 +1,5 @@
 import { Card, ScreenContent, Text, View, useThemeColor } from "@/src/components/Themed";
+import Colors from "@/src/constants/StyleVariables";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { StyleSheet } from "react-native";
 
@@ -9,13 +10,14 @@ import { StyleSheet } from "react-native";
  */
 export default function Library() {
   const primary = useThemeColor({}, "primary");
+  const primarySoft = useThemeColor({}, "primarySoft");
   const textMuted = useThemeColor({}, "textMuted");
 
   return (
     <View style={styles.root}>
       <ScreenContent style={styles.content}>
         <Card style={styles.card}>
-          <View style={[styles.iconCircle, { backgroundColor: primary + "22" }]}>
+          <View style={[styles.iconCircle, { backgroundColor: primarySoft }]}>
             <FontAwesome name="book" size={26} color={primary} />
           </View>
           <Text style={styles.title}>Your library is empty</Text>
@@ -30,16 +32,24 @@ export default function Library() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, alignItems: "center" },
-  content: { flex: 0, alignItems: "center", paddingTop: 48 },
-  card: { alignItems: "center", gap: 8, paddingVertical: 32, width: "100%" },
+  content: { flex: 0, alignItems: "center", paddingTop: Colors.spacing.xxxl },
+  card: {
+    alignItems: "center",
+    gap: Colors.spacing.sm,
+    paddingVertical: Colors.spacing.xxl,
+    width: "100%",
+  },
   iconCircle: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: Colors.radius.full,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 8,
+    marginBottom: Colors.spacing.sm,
   },
-  title: { fontSize: 17, fontWeight: "600" },
-  subtitle: { fontSize: 14, textAlign: "center" },
+  title: {
+    fontSize: Colors.typography.fontSize.lg,
+    fontWeight: Colors.typography.fontWeight.semibold,
+  },
+  subtitle: { fontSize: Colors.typography.fontSize.base, textAlign: "center" },
 });
