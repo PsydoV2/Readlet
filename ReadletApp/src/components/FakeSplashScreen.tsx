@@ -4,23 +4,39 @@ import { Animated, Image, StyleSheet } from "react-native";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import Colors from "@/src/constants/StyleVariables";
 
+// Minimum time the branded splash stays fully visible once `ready` flips
+// true, so it reads as a deliberate beat rather than a flicker even when
+// fonts/app-lock hydration (what `ready` gates on in app/_layout.tsx)
+// resolve near-instantly.
+const MIN_HOLD_MS = 300;
+
 type FakeSplashScreenProps = {
+  /**
+   * Whether the app underneath (gated on fonts + app-lock hydration in
+   * app/_layout.tsx) is ready to be revealed. Until this flips true, the
+   * overlay just sits there — it must NOT fade out on its own, since
+   * there'd be nothing but a blank background underneath yet.
+   */
+  ready: boolean;
   /** Called once the fade-out finishes; the caller unmounts this then. */
   onFinish: () => void;
 };
 
 /**
- * A JS-rendered stand-in for the splash screen, shown for a beat right
- * after the *native* splash screen (app.json's `expo-splash-screen` config
- * + app/_layout.tsx's `SplashScreen.hideAsync`) hands off to the app.
+ * A JS-rendered stand-in for the splash screen, mounted immediately (see
+ * app/_layout.tsx) so the *native* splash screen (app.json's
+ * `expo-splash-screen` config) can be hidden right away instead of staying
+ * up for however long fonts/app-lock hydration take — the user should
+ * never actually see the native one, only this.
  *
  * It's "fake" in that it isn't the OS-level splash — that one is a single
  * static image the OS paints before any JS runs, so it has no styling
  * hooks: no rounded corners on the logo (they'd have to be baked into the
  * PNG itself), no fade. This component can do both, and bridges the
- * native splash's hard cut to the library screen into a smooth handoff.
+ * native splash's hard cut into a smooth handoff to the app once it's
+ * actually ready.
  */
-export default function FakeSplashScreen({ onFinish }: FakeSplashScreenProps) {
+export default function FakeSplashScreen({ ready, onFinish }: FakeSplashScreenProps) {
   const scheme = useColorScheme();
   const theme = scheme === "dark" ? Colors.dark : Colors.light;
   // Starts fully opaque — not faded in — so there's no frame where this
@@ -39,6 +55,12 @@ export default function FakeSplashScreen({ onFinish }: FakeSplashScreenProps) {
       tension: 60,
       useNativeDriver: true,
     }).start();
+    // Runs once per mount: `logoScale` is stable across re-renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
 
     // Hold briefly, then fade the whole overlay out and hand off to the app.
     const holdTimer = setTimeout(() => {
@@ -49,14 +71,14 @@ export default function FakeSplashScreen({ onFinish }: FakeSplashScreenProps) {
       }).start(({ finished }) => {
         if (finished) onFinish();
       });
-    }, 700);
+    }, MIN_HOLD_MS);
 
     return () => clearTimeout(holdTimer);
-    // Intentionally run once per mount: `opacity`/`logoScale` are stable
-    // across re-renders and `onFinish` is expected to unmount this
-    // component, not re-trigger the animation.
+    // Intentionally keyed only on `ready`: `opacity` is stable across
+    // re-renders and `onFinish` is expected to unmount this component, not
+    // re-trigger the fade-out.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ready]);
 
   return (
     <Animated.View

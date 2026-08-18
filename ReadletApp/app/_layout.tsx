@@ -76,9 +76,13 @@ export default function RootLayout() {
 /**
  * Split out so it can read the resolved (user-overridable) scheme from
  * `ThemePreferenceProvider` and the hydrated lock state from
- * `AppLockProvider`. Rendering is held back (native splash screen stays up)
- * until both fonts and the persisted lock state are ready, so there's
- * never a flash of unlocked content or unstyled icons. Which of `/lock` vs
+ * `AppLockProvider`. `Slot` (the actual app content) is held back until
+ * both fonts and the persisted lock state are ready, so there's never a
+ * flash of unlocked content or unstyled icons — but the *native* splash
+ * screen is hidden immediately on mount regardless, handing off to
+ * `FakeSplashScreen` (which needs neither and paints its own opaque cover
+ * from the very first frame) instead of leaving the unstyled native splash
+ * up for however long that readiness takes. Which of `/lock` vs
  * `(auth)/...` actually renders is decided by `(auth)/_layout.tsx`'s
  * redirect, not here — this just provides the themed shell around
  * whichever route is active.
@@ -95,16 +99,20 @@ function ThemedApp() {
     if (fontError) console.error(fontError);
   }, [fontError]);
 
+  // Fires once, right after this component's first commit — not gated on
+  // `ready` — since ThemePreferenceProvider resolves `scheme` synchronously
+  // (see its own doc comment) and FakeSplashScreen below needs nothing
+  // else to paint its first, fully-opaque frame. Keeping the native splash
+  // up any longer than this would just mean the user sees *it* first
+  // instead of the branded one.
   useEffect(() => {
-    if (!ready) return;
     const bg = scheme === "dark" ? Colors.dark.canvas : Colors.light.canvas;
     void (async () => {
       await SystemUI.setBackgroundColorAsync(bg).catch(console.error);
       await SplashScreen.hideAsync().catch(console.error);
     })();
-  }, [ready, scheme]);
-
-  if (!ready) return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <ThemeProvider value={scheme === "dark" ? navigationDarkTheme : navigationLightTheme}>
@@ -113,16 +121,19 @@ function ThemedApp() {
         No native header, no tab bar anywhere below: every screen owns its
         full-bleed layout and draws its own chrome (see ScreenHeader)
         instead of expo-router's default page-title header / bottom nav.
+        Mounted only once ready — FakeSplashScreen fully covers this area
+        until then, so there's nothing to see prematurely underneath.
       */}
-      <Slot />
+      {ready && <Slot />}
       {/*
-        Bridges the native splash (which just hid) into the library with a
+        Bridges the (now-hidden) native splash into the library with a
         rounded-corner logo and a fade — see FakeSplashScreen's own doc
         comment for why this is a separate, JS-rendered layer instead of
-        styling the native one.
+        styling the native one. Stays up until `ready`, then holds briefly
+        before fading out.
       */}
       {showFakeSplash && (
-        <FakeSplashScreen onFinish={() => setShowFakeSplash(false)} />
+        <FakeSplashScreen ready={ready} onFinish={() => setShowFakeSplash(false)} />
       )}
     </ThemeProvider>
   );
