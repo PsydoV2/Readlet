@@ -3,7 +3,13 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Linking, Pressable, ScrollView, StyleSheet, Switch } from "react-native";
+import {
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+} from "react-native";
 
 import ScreenHeader from "@/src/components/ScreenHeader";
 import { Card, Text, View, useThemeColor } from "@/src/components/Themed";
@@ -11,8 +17,15 @@ import Colors from "@/src/constants/StyleVariables";
 import LegalLinks from "@/src/constants/LegalLinks";
 import { useAppLock } from "@/src/context/AppLockProvider";
 import { useToast } from "@/src/context/ToastProvider";
-import { type ThemePreference, useThemePreference } from "@/src/context/ThemePreferenceProvider";
-import { type LanguagePreference, getLanguagePreference, setLanguagePreference } from "@/src/i18n";
+import {
+  type ThemePreference,
+  useThemePreference,
+} from "@/src/context/ThemePreferenceProvider";
+import {
+  type LanguagePreference,
+  getLanguagePreference,
+  setLanguagePreference,
+} from "@/src/i18n";
 import { checkAndApplyUpdate } from "@/src/services/otaUpdates";
 import { goBack } from "@/src/utils/goBack";
 
@@ -31,17 +44,29 @@ export default function Settings() {
   const router = useRouter();
   const { showToast } = useToast();
   const { themePreference, setThemePreference } = useThemePreference();
-  const { pinEnabled, biometricEnabled, biometricAvailable, biometricLabel, setBiometricEnabled, lockNow } =
-    useAppLock();
-  const [language, setLanguage] = useState<LanguagePreference>(getLanguagePreference);
+  const {
+    pinEnabled,
+    biometricEnabled,
+    biometricAvailable,
+    biometricLabel,
+    setBiometricEnabled,
+    lockNow,
+  } = useAppLock();
+  const [language, setLanguage] = useState<LanguagePreference>(
+    getLanguagePreference,
+  );
   const [checkingForUpdate, setCheckingForUpdate] = useState(false);
 
   const textMuted = useThemeColor({}, "textMuted");
   const border = useThemeColor({}, "border");
   const primary = useThemeColor({}, "primary");
-  const appVersion = Constants.expoConfig?.version ?? "1.0.0";
+  const appVersion = Constants.expoConfig?.version ?? "1.0.1";
 
-  const themeOptions: { value: ThemePreference; label: string; icon: IconName }[] = [
+  const themeOptions: {
+    value: ThemePreference;
+    label: string;
+    icon: IconName;
+  }[] = [
     { value: "system", label: t("settings.themeSystem"), icon: "adjust" },
     { value: "light", label: t("settings.themeLight"), icon: "sun-o" },
     { value: "dark", label: t("settings.themeDark"), icon: "moon-o" },
@@ -59,17 +84,25 @@ export default function Settings() {
   }
 
   function openLegalLink(url: string) {
-    Linking.openURL(url).catch(() => showToast(t("settings.linkErrorToast"), "error"));
+    Linking.openURL(url).catch(() =>
+      showToast(t("settings.linkErrorToast"), "error"),
+    );
   }
 
   function handleTogglePinLock(next: boolean) {
-    router.push({ pathname: "/settings-pin", params: { mode: next ? "enable" : "disable" } });
+    router.push({
+      pathname: "/settings-pin",
+      params: { mode: next ? "enable" : "disable" },
+    });
   }
 
   async function handleToggleBiometric(next: boolean) {
     const applied = await setBiometricEnabled(next);
     if (!applied) {
-      showToast(t("settings.biometricErrorToast", { label: biometricLabel }), "error");
+      showToast(
+        t("settings.biometricErrorToast", { label: biometricLabel }),
+        "error",
+      );
     }
   }
 
@@ -110,7 +143,8 @@ export default function Settings() {
       key: "changePin",
       kind: "action" as const,
       label: t("settings.changePin"),
-      onPress: () => router.push({ pathname: "/settings-pin", params: { mode: "change" } }),
+      onPress: () =>
+        router.push({ pathname: "/settings-pin", params: { mode: "change" } }),
     },
     pinEnabled &&
       biometricAvailable && {
@@ -127,14 +161,24 @@ export default function Settings() {
       label: t("settings.lockNow"),
       onPress: lockNow,
     },
-  ].filter((row): row is Exclude<typeof row, false | undefined> => Boolean(row));
+  ].filter((row): row is Exclude<typeof row, false | undefined> =>
+    Boolean(row),
+  );
 
   return (
     <View style={styles.root}>
-      <ScreenHeader title={t("settings.title")} onClose={() => goBack(router, "/")} />
+      <ScreenHeader
+        title={t("settings.title")}
+        onClose={() => goBack(router, "/")}
+      />
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <SectionLabel color={textMuted}>{t("settings.appearance")}</SectionLabel>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <SectionLabel color={textMuted}>
+          {t("settings.appearance")}
+        </SectionLabel>
         <Card style={styles.sectionCard}>
           {themeOptions.map((option, index) => (
             <OptionRow
@@ -238,7 +282,13 @@ export default function Settings() {
   );
 }
 
-function SectionLabel({ children, color }: { children: string; color: string }) {
+function SectionLabel({
+  children,
+  color,
+}: {
+  children: string;
+  color: string;
+}) {
   return <Text style={[styles.sectionLabel, { color }]}>{children}</Text>;
 }
 
@@ -267,12 +317,22 @@ function OptionRow({
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
-        showDivider && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: borderColor },
+        showDivider && {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: borderColor,
+        },
         pressed && styles.rowPressed,
       ]}
     >
       <View style={styles.rowLeft}>
-        {icon && <FontAwesome name={icon} size={16} color={selected ? accentColor : textMuted} style={styles.rowIcon} />}
+        {icon && (
+          <FontAwesome
+            name={icon}
+            size={16}
+            color={selected ? accentColor : textMuted}
+            style={styles.rowIcon}
+          />
+        )}
         <Text style={[styles.rowLabel, { color: text }]}>{label}</Text>
       </View>
       {selected && <FontAwesome name="check" size={15} color={accentColor} />}
@@ -303,12 +363,22 @@ function ActionRow({
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
-        showDivider && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: borderColor },
+        showDivider && {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: borderColor,
+        },
         pressed && styles.rowPressed,
       ]}
     >
       <View style={styles.rowLeft}>
-        {icon && <FontAwesome name={icon} size={16} color={textSubtle} style={styles.rowIcon} />}
+        {icon && (
+          <FontAwesome
+            name={icon}
+            size={16}
+            color={textSubtle}
+            style={styles.rowIcon}
+          />
+        )}
         <Text style={styles.rowLabel}>{label}</Text>
       </View>
       <FontAwesome name={trailingIcon} size={13} color={textSubtle} />
@@ -341,11 +411,21 @@ function SwitchRow({
     <View
       style={[
         styles.row,
-        showDivider && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: borderColor },
+        showDivider && {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: borderColor,
+        },
       ]}
     >
       <View style={styles.rowLeft}>
-        {icon && <FontAwesome name={icon} size={16} color={textSubtle} style={styles.rowIcon} />}
+        {icon && (
+          <FontAwesome
+            name={icon}
+            size={16}
+            color={textSubtle}
+            style={styles.rowIcon}
+          />
+        )}
         <Text style={styles.rowLabel}>{label}</Text>
       </View>
       <Switch
