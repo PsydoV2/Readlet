@@ -60,7 +60,7 @@ export default function Settings() {
   const textMuted = useThemeColor({}, "textMuted");
   const border = useThemeColor({}, "border");
   const primary = useThemeColor({}, "primary");
-  const appVersion = Constants.expoConfig?.version ?? "1.0.1";
+  const appVersion = Constants.expoConfig?.version ?? "1.1.0";
 
   const themeOptions: {
     value: ThemePreference;
