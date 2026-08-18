@@ -8,7 +8,7 @@ import BookCard from "@/src/components/BookCard";
 import { Text, View, useThemeColor } from "@/src/components/Themed";
 import Colors from "@/src/constants/StyleVariables";
 import { useLibrary } from "@/src/context/LibraryProvider";
-import { useToast } from "@/src/context/ToastProvider";
+import { useImportFlow } from "@/src/hooks/useImportFlow";
 
 const NUM_COLUMNS = 2;
 
@@ -27,8 +27,10 @@ export default function Library() {
   // book count would otherwise leave a lone last-row card stretched to the
   // full row width. See BookCard's own comment.
   const cardWidth = (windowWidth - Colors.gapLarge * 2 - Colors.gapMedium) / NUM_COLUMNS;
-  const { books, isLoading, importBook, isImporting } = useLibrary();
-  const { showToast } = useToast();
+  const { books, isLoading } = useLibrary();
+  const { handlePick, isImporting } = useImportFlow((book) =>
+    router.push({ pathname: "/book/[id]", params: { id: book.id } })
+  );
   const primary = useThemeColor({}, "primary");
   const primarySoft = useThemeColor({}, "primarySoft");
   const textMuted = useThemeColor({}, "textMuted");
@@ -36,19 +38,6 @@ export default function Library() {
   const surfaceHover = useThemeColor({}, "surfaceHover");
   const canvas = useThemeColor({}, "canvas");
   const border = useThemeColor({}, "border");
-
-  async function handlePick() {
-    try {
-      const book = await importBook();
-      if (!book) return; // picker was canceled
-      showToast(t("import.successToast", { title: book.title }), "success");
-      router.push({ pathname: "/book/[id]", params: { id: book.id } });
-    } catch (error) {
-      console.error("[Import] Import fehlgeschlagen:", error);
-      const message = error instanceof Error ? error.message : String(error);
-      showToast(t("import.errorToast", { message }), "error");
-    }
-  }
 
   return (
     <View style={styles.root}>

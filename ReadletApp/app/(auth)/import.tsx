@@ -6,8 +6,7 @@ import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
 import ScreenHeader from "@/src/components/ScreenHeader";
 import { Text, View, useThemeColor } from "@/src/components/Themed";
 import Colors from "@/src/constants/StyleVariables";
-import { useLibrary } from "@/src/context/LibraryProvider";
-import { useToast } from "@/src/context/ToastProvider";
+import { useImportFlow } from "@/src/hooks/useImportFlow";
 import { goBack } from "@/src/utils/goBack";
 
 /**
@@ -19,25 +18,13 @@ import { goBack } from "@/src/utils/goBack";
 export default function Import() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { showToast } = useToast();
-  const { importBook, isImporting } = useLibrary();
+  const { handlePick, isImporting } = useImportFlow((book) =>
+    router.replace({ pathname: "/book/[id]", params: { id: book.id } })
+  );
   const primary = useThemeColor({}, "primary");
   const primarySoft = useThemeColor({}, "primarySoft");
   const textMuted = useThemeColor({}, "textMuted");
   const border = useThemeColor({}, "border");
-
-  async function handlePick() {
-    try {
-      const book = await importBook();
-      if (!book) return; // picker was canceled
-      showToast(t("import.successToast", { title: book.title }), "success");
-      router.replace({ pathname: "/book/[id]", params: { id: book.id } });
-    } catch (error) {
-      console.error("[Import] Import fehlgeschlagen:", error);
-      const message = error instanceof Error ? error.message : String(error);
-      showToast(t("import.errorToast", { message }), "error");
-    }
-  }
 
   return (
     <View style={styles.root}>
