@@ -3,6 +3,7 @@
     "name": "Readlet",
     "slug": "readlet",
     "version": "1.0.1",
+    "platforms": ["ios", "android"],
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "readlet",
