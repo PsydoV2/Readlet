@@ -3,12 +3,17 @@
     "name": "Readlet",
     "slug": "readlet",
     "version": "1.0.1",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "readlet",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "runtimeVersion": {
       "policy": "fingerprint"
     },
@@ -27,7 +32,8 @@
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT"
       ],
-      "package": "com.psydo.readlet"
+      "package": "com.psydo.readlet",
+      "versionCode": 2
     },
     "plugins": [
       "expo-router",
