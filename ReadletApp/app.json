@@ -14,9 +14,7 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "runtimeVersion": {
-      "policy": "fingerprint"
-    },
+    "runtimeVersion": "1.1.0",
     "updates": {
       "url": "https://u.expo.dev/1ebfe8dc-deab-4c0d-9e11-383cf55ab246"
     },
