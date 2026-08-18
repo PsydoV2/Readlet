@@ -31,7 +31,7 @@
         "android.permission.USE_FINGERPRINT"
       ],
       "package": "com.psydo.readlet",
-      "versionCode": 3
+      "versionCode": 4
     },
     "plugins": [
       "expo-router",
