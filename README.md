@@ -1,33 +1,33 @@
 # 📖 Readlet
 
-Ein schlanker, moderner E-Reader für iOS und Android — kein Account, kein
-Internet nötig, keine Werbung. Bücher bleiben auf dem Gerät.
+A clean, modern e-reader for iOS and Android — no account, no internet
+required, no ads. Your books never leave the device.
 
-- **Lokal-first**: Bücher verlassen das Telefon nie
-- **EPUB, MOBI (DRM-frei) und PDF** importieren, direkt über die
-  Dateiauswahl des Geräts
-- **PIN- & Geräte-Sperre** (Face ID / Touch ID / Fingerabdruck)
-- **Hell & Dunkel**, folgt dem System oder manuell wählbar
-- **Deutsch & Englisch**, vollständig übersetzt
-- **Quelloffen**, MIT-lizenziert
+- **Local-first**: books never leave the phone
+- **Import EPUB, MOBI (DRM-free) and PDF** straight from the device's file
+  picker
+- **PIN & device lock** (Face ID / Touch ID / fingerprint)
+- **Light & dark**, follows the system or set manually
+- **German & English**, fully translated
+- **Open source**, MIT-licensed
 
-Dieses Repository ist ein Monorepo aus zwei Projekten plus Store-Assets:
+This repository is a monorepo made up of two projects plus store assets:
 
-| Ordner | Was es ist |
+| Folder | What it is |
 | --- | --- |
-| [`ReadletApp/`](ReadletApp) | Die eigentliche App (Expo/React Native, iOS + Android) |
-| [`ReadletWeb/`](ReadletWeb) | Die Website (Next.js) — Landingpage, Datenschutz, Impressum |
-| [`PlayStore/`](PlayStore) | Screenshots und Grafiken für den Play-Store-Eintrag |
-| [`DESIGN.md`](DESIGN.md) | Design-System (Farben, Typografie, Spacing) für App und Web gemeinsam |
+| [`ReadletApp/`](ReadletApp) | The actual app (Expo/React Native, iOS + Android) |
+| [`ReadletWeb/`](ReadletWeb) | The website (Next.js) — landing page, privacy policy, imprint |
+| [`PlayStore/`](PlayStore) | Screenshots and graphics for the Play Store listing |
+| [`DESIGN.md`](DESIGN.md) | Shared design system (colors, typography, spacing) for app and web |
 
 ---
 
 ## 📱 ReadletApp
 
-Gebaut mit [Expo](https://expo.dev) (SDK 57), [expo-router](https://docs.expo.dev/router/introduction/)
-und TypeScript. Bücher landen lokal in SQLite, EPUB/MOBI werden im Import
-selbst geparst (kein Cloud-Backend, keine Server-Abhängigkeit), gelesen
-wird über eine in die App eingebettete Reader-Ansicht.
+Built with [Expo](https://expo.dev) (SDK 57), [expo-router](https://docs.expo.dev/router/introduction/)
+and TypeScript. Books are stored locally in SQLite, EPUB/MOBI are parsed on
+import itself (no cloud backend, no server dependency), and reading happens
+through a reader view embedded right in the app.
 
 ```bash
 cd ReadletApp
@@ -35,30 +35,31 @@ npm install
 npx expo start
 ```
 
-Danach `i` für den iOS-Simulator oder `a` für den Android-Emulator drücken.
+Then press `i` for the iOS simulator or `a` for the Android emulator.
 
-Details zu Architektur, Datenmodell und allen Entscheidungen dahinter stehen
-in [`ReadletApp/README.md`](ReadletApp/README.md) und [`ReadletApp/CLAUDE.md`](ReadletApp/CLAUDE.md).
+Details on architecture, data model, and the reasoning behind every
+decision live in [`ReadletApp/README.md`](ReadletApp/README.md) and
+[`ReadletApp/CLAUDE.md`](ReadletApp/CLAUDE.md).
 
 ### Tech Stack
 
-| Bereich | Technologie |
+| Layer | Technology |
 | --- | --- |
 | Framework | Expo SDK 57, React Native 0.86, React 19.2 |
 | Navigation | expo-router v7 |
-| Sprache | TypeScript 6 (strict) |
-| Speicher | expo-sqlite, expo-file-system, expo-secure-store |
-| Import | expo-document-picker, jszip + fast-xml-parser (EPUB), handgeschriebener MOBI-Parser |
-| Lesen | react-native-webview + eingebettetes pdf.js (PDF) |
+| Language | TypeScript 6 (strict) |
+| Storage | expo-sqlite, expo-file-system, expo-secure-store |
+| Import | expo-document-picker, jszip + fast-xml-parser (EPUB), hand-rolled MOBI parser |
+| Reading | react-native-webview + embedded pdf.js (PDF) |
 | i18n | i18next + react-i18next |
 
 ---
 
 ## 🌐 ReadletWeb
 
-Die Website (Landingpage sowie Datenschutz-/Impressum-Seiten), gebaut mit
-[Next.js](https://nextjs.org) und Tailwind CSS. Teilt Farb- und
-Typografie-Tokens mit der App (siehe [`DESIGN.md`](DESIGN.md)).
+The website (landing page plus privacy policy/imprint pages), built with
+[Next.js](https://nextjs.org) and Tailwind CSS. Shares color and typography
+tokens with the app (see [`DESIGN.md`](DESIGN.md)).
 
 ```bash
 cd ReadletWeb
@@ -66,19 +67,19 @@ npm install
 npm run dev
 ```
 
-Läuft danach unter <http://localhost:3000>.
+Runs at <http://localhost:3000>.
 
 ---
 
 ## 🎨 Design
 
-[`DESIGN.md`](DESIGN.md) ist die verbindliche Referenz für alles Visuelle —
-Farben, Typografie, Spacing, Komponenten-Patterns, Tonalität. Quelle der
-Wahrheit ist `ReadletApp/src/constants/StyleVariables.ts`; jede andere
-Oberfläche (Web, künftige Marketing-Seiten) zieht von dort nach.
+[`DESIGN.md`](DESIGN.md) is the authoritative reference for anything
+visual — colors, typography, spacing, component patterns, voice/tone. The
+source of truth is `ReadletApp/src/constants/StyleVariables.ts`; every
+other surface (web, future marketing pages) follows from there.
 
 ---
 
-## 🪪 Lizenz
+## 🪪 License
 
-MIT — siehe [`LICENSE`](LICENSE).
+MIT — see [`LICENSE`](LICENSE).
